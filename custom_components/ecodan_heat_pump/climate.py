@@ -93,17 +93,14 @@ class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
         Set new target temperature.
         """
         LOGGER.debug(kwargs)
-        # self.target_temperature =
         return
 
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:
         """Set new target hvac mode."""
         LOGGER.debug("Setting HVAC mode...")
-        self._attr_hvac_mode = hvac_mode
         return
 
     async def async_set_preset_mode(self, preset_mode):
         """Set new target preset mode."""
         LOGGER.debug("Setting preset mode...")
-        self.preset_mode == preset_mode
         return

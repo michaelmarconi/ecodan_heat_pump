@@ -17,9 +17,9 @@ from .coordinator import EcodanHeatPumpDataUpdateCoordinator
 from .config_flow import USERNAME_1, PASSWORD_1
 
 PLATFORMS: list[Platform] = [
-    Platform.SENSOR,
-    Platform.BINARY_SENSOR,
-    Platform.SWITCH,
+    # Platform.SENSOR,
+    # Platform.BINARY_SENSOR,
+    # Platform.SWITCH,
     Platform.CLIMATE,
 ]
 

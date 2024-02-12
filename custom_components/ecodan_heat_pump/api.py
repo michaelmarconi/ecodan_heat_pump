@@ -9,15 +9,15 @@ import aiohttp
 import async_timeout
 
 
-class MELCLoudApiClientError(Exception):
+class MELCloudApiClientError(Exception):
     """Exception to indicate a general API error."""
 
 
-class MELCLoudApiClientCommunicationError(MELCLoudApiClientError):
+class MELCLoudApiClientCommunicationError(MELCloudApiClientError):
     """Exception to indicate a communication error."""
 
 
-class MELCLoudApiClientAuthenticationError(MELCLoudApiClientError):
+class MELCloudApiClientAuthenticationError(MELCloudApiClientError):
     """Exception to indicate an authentication error."""
 
 
@@ -67,7 +67,7 @@ class MELCloudApiClient:
                     json=data,
                 )
                 if response.status in (401, 403):
-                    raise MELCLoudApiClientAuthenticationError(
+                    raise MELCloudApiClientAuthenticationError(
                         "Invalid credentials",
                     )
                 response.raise_for_status()
@@ -82,6 +82,6 @@ class MELCloudApiClient:
                 "Error fetching information",
             ) from exception
         except Exception as exception:  # pylint: disable=broad-except
-            raise MELCLoudApiClientError(
+            raise MELCloudApiClientError(
                 "Something really wrong happened!"
             ) from exception

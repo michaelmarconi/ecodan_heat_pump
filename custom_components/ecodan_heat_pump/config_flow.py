@@ -14,9 +14,9 @@ from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
 from .api import (
     MELCloudApiClient,
-    MELCLoudApiClientAuthenticationError,
+    MELCloudApiClientAuthenticationError,
     MELCLoudApiClientCommunicationError,
-    MELCLoudApiClientError,
+    MELCloudApiClientError,
 )
 from .const import DOMAIN, LOGGER
 
@@ -46,13 +46,13 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     username=user_input[USERNAME_1],
                     password=user_input[PASSWORD_1],
                 )
-            except MELCLoudApiClientAuthenticationError as exception:
+            except MELCloudApiClientAuthenticationError as exception:
                 LOGGER.warning(exception)
                 _errors["base"] = "auth"
             except MELCLoudApiClientCommunicationError as exception:
                 LOGGER.error(exception)
                 _errors["base"] = "connection"
-            except MELCLoudApiClientError as exception:
+            except MELCloudApiClientError as exception:
                 LOGGER.exception(exception)
                 _errors["base"] = "unknown"
             else:
