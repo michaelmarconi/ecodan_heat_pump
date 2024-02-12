@@ -1,11 +1,16 @@
 {
     "config": {
         "step": {
-            "user": {
-                "description": "If you need help with the configuration have a look here: https://github.com/michaelmarconi/ecodan_heat_pump",
+            "init": {
+                "title": "Add API users",
+                "description": "Add one or more MELCloud users to reduce the polling time on the API. If you need help with the configuration have a look here: https://github.com/michaelmarconi/ecodan_heat_pump",
                 "data": {
-                    "username": "Username",
-                    "password": "Password"
+                    "username_1": "Username 1",
+                    "username_2": "Username 2",
+                    "username_3": "Username 3",
+                    "password_1": "Password 1",
+                    "password_2": "Password 2",
+                    "password_3": "Password 3"
                 }
             }
         },
