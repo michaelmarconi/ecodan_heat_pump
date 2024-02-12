@@ -3,6 +3,7 @@
 For more details about this integration, please refer to
 https://github.com/michaelmarconi/ecodan_heat_pump
 """
+
 from __future__ import annotations
 
 from homeassistant.config_entries import ConfigEntry
@@ -13,6 +14,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from .api import ApiClient
 from .const import DOMAIN
 from .coordinator import BlueprintDataUpdateCoordinator
+from .config_flow import USERNAME_1, PASSWORD_1
 
 PLATFORMS: list[Platform] = [
     Platform.SENSOR,
@@ -28,8 +30,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN][entry.entry_id] = coordinator = BlueprintDataUpdateCoordinator(
         hass=hass,
         client=ApiClient(
-            username=entry.data[CONF_USERNAME],
-            password=entry.data[CONF_PASSWORD],
+            username=entry.data[USERNAME_1],
+            password=entry.data[PASSWORD_1],
             session=async_get_clientsession(hass),
         ),
     )
