@@ -1,11 +1,12 @@
 """Sensor platform for ecodan_heat_pump."""
+
 from __future__ import annotations
 
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 
 from .const import DOMAIN
-from .coordinator import BlueprintDataUpdateCoordinator
-from .entity import IntegrationBlueprintEntity
+from .coordinator import EcodanHeatPumpDataUpdateCoordinator
+from .entity import EcodanHeatPumpEntity
 
 ENTITY_DESCRIPTIONS = (
     SensorEntityDescription(
@@ -28,12 +29,12 @@ async def async_setup_entry(hass, entry, async_add_devices):
     )
 
 
-class IntegrationBlueprintSensor(IntegrationBlueprintEntity, SensorEntity):
+class IntegrationBlueprintSensor(EcodanHeatPumpEntity, SensorEntity):
     """ecodan_heat_pump Sensor class."""
 
     def __init__(
         self,
-        coordinator: BlueprintDataUpdateCoordinator,
+        coordinator: EcodanHeatPumpDataUpdateCoordinator,
         entity_description: SensorEntityDescription,
     ) -> None:
         """Initialize the sensor class."""

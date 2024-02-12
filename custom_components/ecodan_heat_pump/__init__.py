@@ -13,13 +13,14 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from .api import MELCloudApiClient
 from .const import DOMAIN
-from .coordinator import BlueprintDataUpdateCoordinator
+from .coordinator import EcodanHeatPumpDataUpdateCoordinator
 from .config_flow import USERNAME_1, PASSWORD_1
 
 PLATFORMS: list[Platform] = [
     Platform.SENSOR,
     Platform.BINARY_SENSOR,
     Platform.SWITCH,
+    Platform.CLIMATE,
 ]
 
 
@@ -27,13 +28,15 @@ PLATFORMS: list[Platform] = [
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up this integration using UI."""
     hass.data.setdefault(DOMAIN, {})
-    hass.data[DOMAIN][entry.entry_id] = coordinator = BlueprintDataUpdateCoordinator(
-        hass=hass,
-        client=MELCloudApiClient(
-            username=entry.data[USERNAME_1],
-            password=entry.data[PASSWORD_1],
-            session=async_get_clientsession(hass),
-        ),
+    hass.data[DOMAIN][entry.entry_id] = coordinator = (
+        EcodanHeatPumpDataUpdateCoordinator(
+            hass=hass,
+            client=MELCloudApiClient(
+                username=entry.data[USERNAME_1],
+                password=entry.data[PASSWORD_1],
+                session=async_get_clientsession(hass),
+            ),
+        )
     )
     # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
     await coordinator.async_config_entry_first_refresh()

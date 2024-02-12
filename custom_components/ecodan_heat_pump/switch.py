@@ -1,23 +1,24 @@
 """Switch platform for ecodan_heat_pump."""
+
 from __future__ import annotations
 
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 
 from .const import DOMAIN
-from .coordinator import BlueprintDataUpdateCoordinator
-from .entity import IntegrationBlueprintEntity
+from .coordinator import EcodanHeatPumpDataUpdateCoordinator
+from .entity import EcodanHeatPumpEntity
 
 ENTITY_DESCRIPTIONS = (
     SwitchEntityDescription(
         key="ecodan_heat_pump",
-        name="Integration Switch",
+        name="Ecodan Heat Pump Switch",
         icon="mdi:format-quote-close",
     ),
 )
 
 
 async def async_setup_entry(hass, entry, async_add_devices):
-    """Set up the sensor platform."""
+    """Set up the climate platform."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
     async_add_devices(
         IntegrationBlueprintSwitch(
@@ -28,12 +29,12 @@ async def async_setup_entry(hass, entry, async_add_devices):
     )
 
 
-class IntegrationBlueprintSwitch(IntegrationBlueprintEntity, SwitchEntity):
+class IntegrationBlueprintSwitch(EcodanHeatPumpEntity, SwitchEntity):
     """ecodan_heat_pump switch class."""
 
     def __init__(
         self,
-        coordinator: BlueprintDataUpdateCoordinator,
+        coordinator: EcodanHeatPumpDataUpdateCoordinator,
         entity_description: SwitchEntityDescription,
     ) -> None:
         """Initialize the switch class."""

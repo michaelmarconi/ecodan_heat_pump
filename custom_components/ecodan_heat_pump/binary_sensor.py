@@ -1,4 +1,5 @@
 """Binary sensor platform for ecodan_heat_pump."""
+
 from __future__ import annotations
 
 from homeassistant.components.binary_sensor import (
@@ -8,8 +9,8 @@ from homeassistant.components.binary_sensor import (
 )
 
 from .const import DOMAIN
-from .coordinator import BlueprintDataUpdateCoordinator
-from .entity import IntegrationBlueprintEntity
+from .coordinator import EcodanHeatPumpDataUpdateCoordinator
+from .entity import EcodanHeatPumpEntity
 
 ENTITY_DESCRIPTIONS = (
     BinarySensorEntityDescription(
@@ -32,12 +33,12 @@ async def async_setup_entry(hass, entry, async_add_devices):
     )
 
 
-class IntegrationBlueprintBinarySensor(IntegrationBlueprintEntity, BinarySensorEntity):
+class IntegrationBlueprintBinarySensor(EcodanHeatPumpEntity, BinarySensorEntity):
     """ecodan_heat_pump binary_sensor class."""
 
     def __init__(
         self,
-        coordinator: BlueprintDataUpdateCoordinator,
+        coordinator: EcodanHeatPumpDataUpdateCoordinator,
         entity_description: BinarySensorEntityDescription,
     ) -> None:
         """Initialize the binary_sensor class."""
