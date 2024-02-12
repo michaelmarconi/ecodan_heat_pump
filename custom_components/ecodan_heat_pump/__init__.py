@@ -11,7 +11,7 @@ from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import ApiClient
+from .api import MELCloudApiClient
 from .const import DOMAIN
 from .coordinator import BlueprintDataUpdateCoordinator
 from .config_flow import USERNAME_1, PASSWORD_1
@@ -29,7 +29,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = coordinator = BlueprintDataUpdateCoordinator(
         hass=hass,
-        client=ApiClient(
+        client=MELCloudApiClient(
             username=entry.data[USERNAME_1],
             password=entry.data[PASSWORD_1],
             session=async_get_clientsession(hass),

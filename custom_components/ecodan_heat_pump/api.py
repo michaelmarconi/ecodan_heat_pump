@@ -1,4 +1,5 @@
 """Sample API Client."""
+
 from __future__ import annotations
 
 import asyncio
@@ -8,24 +9,20 @@ import aiohttp
 import async_timeout
 
 
-class ApiClientError(Exception):
+class MELCLoudApiClientError(Exception):
     """Exception to indicate a general API error."""
 
 
-class ApiClientCommunicationError(
-    ApiClientError
-):
+class MELCLoudApiClientCommunicationError(MELCLoudApiClientError):
     """Exception to indicate a communication error."""
 
 
-class ApiClientAuthenticationError(
-    ApiClientError
-):
+class MELCLoudApiClientAuthenticationError(MELCLoudApiClientError):
     """Exception to indicate an authentication error."""
 
 
-class ApiClient:
-    """Sample API Client."""
+class MELCloudApiClient:
+    """MELCloud API client"""
 
     def __init__(
         self,
@@ -70,21 +67,21 @@ class ApiClient:
                     json=data,
                 )
                 if response.status in (401, 403):
-                    raise ApiClientAuthenticationError(
+                    raise MELCLoudApiClientAuthenticationError(
                         "Invalid credentials",
                     )
                 response.raise_for_status()
                 return await response.json()
 
         except asyncio.TimeoutError as exception:
-            raise ApiClientCommunicationError(
+            raise MELCLoudApiClientCommunicationError(
                 "Timeout error fetching information",
             ) from exception
         except (aiohttp.ClientError, socket.gaierror) as exception:
-            raise ApiClientCommunicationError(
+            raise MELCLoudApiClientCommunicationError(
                 "Error fetching information",
             ) from exception
         except Exception as exception:  # pylint: disable=broad-except
-            raise ApiClientError(
+            raise MELCLoudApiClientError(
                 "Something really wrong happened!"
             ) from exception

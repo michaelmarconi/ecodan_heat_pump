@@ -1,4 +1,5 @@
 """DataUpdateCoordinator for ecodan_heat_pump."""
+
 from __future__ import annotations
 
 from datetime import timedelta
@@ -12,9 +13,9 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.exceptions import ConfigEntryAuthFailed
 
 from .api import (
-    ApiClient,
-    ApiClientAuthenticationError,
-    ApiClientError,
+    MELCloudApiClient,
+    MELCLoudApiClientAuthenticationError,
+    MELCLoudApiClientError,
 )
 from .const import DOMAIN, LOGGER
 
@@ -28,7 +29,7 @@ class BlueprintDataUpdateCoordinator(DataUpdateCoordinator):
     def __init__(
         self,
         hass: HomeAssistant,
-        client: ApiClient,
+        client: MELCloudApiClient,
     ) -> None:
         """Initialize."""
         self.client = client
@@ -43,7 +44,7 @@ class BlueprintDataUpdateCoordinator(DataUpdateCoordinator):
         """Update data via library."""
         try:
             return await self.client.async_get_data()
-        except ApiClientAuthenticationError as exception:
+        except MELCLoudApiClientAuthenticationError as exception:
             raise ConfigEntryAuthFailed(exception) from exception
-        except ApiClientError as exception:
+        except MELCLoudApiClientError as exception:
             raise UpdateFailed(exception) from exception

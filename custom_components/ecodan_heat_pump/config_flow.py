@@ -13,10 +13,10 @@ from homeassistant.helpers.selector import (
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
 from .api import (
-    ApiClient,
-    ApiClientAuthenticationError,
-    ApiClientCommunicationError,
-    ApiClientError,
+    MELCloudApiClient,
+    MELCLoudApiClientAuthenticationError,
+    MELCLoudApiClientCommunicationError,
+    MELCLoudApiClientError,
 )
 from .const import DOMAIN, LOGGER
 
@@ -46,13 +46,13 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                     username=user_input[USERNAME_1],
                     password=user_input[PASSWORD_1],
                 )
-            except ApiClientAuthenticationError as exception:
+            except MELCLoudApiClientAuthenticationError as exception:
                 LOGGER.warning(exception)
                 _errors["base"] = "auth"
-            except ApiClientCommunicationError as exception:
+            except MELCLoudApiClientCommunicationError as exception:
                 LOGGER.error(exception)
                 _errors["base"] = "connection"
-            except ApiClientError as exception:
+            except MELCLoudApiClientError as exception:
                 LOGGER.exception(exception)
                 _errors["base"] = "unknown"
             else:
@@ -102,9 +102,11 @@ class BlueprintFlowHandler(config_entries.ConfigFlow, domain=DOMAIN):
 
     async def _test_credentials(self, username: str, password: str) -> None:
         """Validate credentials."""
-        client = ApiClient(
-            username=username,
-            password=password,
-            session=async_create_clientsession(self.hass),
-        )
-        await client.async_get_data()
+        # TODO Validate API credentials
+        LOGGER.debug("Skipping API credentials validation for now...")
+        # client = ApiClient(
+        #     username=username,
+        #     password=password,
+        #     session=async_create_clientsession(self.hass),
+        # )
+        # await client.async_get_data()
