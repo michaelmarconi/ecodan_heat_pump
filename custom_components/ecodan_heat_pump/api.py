@@ -1,7 +1,6 @@
 """Sample API Client."""
 
 from __future__ import annotations
-import dataclasses
 from enum import Enum
 from aiohttp import ClientError, ClientResponseError
 from http import HTTPStatus
@@ -9,7 +8,6 @@ from dataclasses import dataclass
 
 from .const import LOGGER
 
-import json
 import asyncio
 import aiohttp
 import pymelcloud
@@ -48,7 +46,8 @@ class HeatPumpState:
     id: str
     has_power: bool
     status: str
-    operation_mode: str
+    device_operation_mode: str
+    zone_operation_mode: str
     temperature_unit: str
     temperature_increment: str
     wifi_strength: int
@@ -107,7 +106,8 @@ class MELCloudApiClient:
                 id=device.device_id,
                 has_power=device.power,
                 status=device.status,
-                operation_mode=device.operation_mode,
+                device_operation_mode=device.operation_mode,
+                zone_operation_mode=zone.operation_mode,
                 temperature_unit=device.temp_unit,
                 temperature_increment=device.temperature_increment,
                 wifi_strength=device.wifi_signal,

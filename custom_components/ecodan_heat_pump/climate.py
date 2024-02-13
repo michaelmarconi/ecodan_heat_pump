@@ -11,6 +11,7 @@ from homeassistant.components.climate.const import (
     HVAC_MODE_HEAT,
     HVAC_MODE_AUTO,
     HVAC_MODE_OFF,
+    HVACAction,
     PRESET_NONE,
     PRESET_BOOST,
 )
@@ -21,6 +22,7 @@ from pymelcloud.atw_device import (
     OPERATION_MODE_FORCE_HOT_WATER,
     STATUS_HEAT_WATER,
     STATUS_HEAT_ZONES,
+    STATUS_STANDBY,
     STATUS_UNKNOWN,
     ZONE_OPERATION_MODE_CURVE,
     ZONE_OPERATION_MODE_HEAT_FLOW,
@@ -77,7 +79,6 @@ class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
     @property
     def hvac_modes(self) -> list[str]:
         """Return the list of available hvac operation modes."""
-        # return [HVAC_MODE_OFF, HVAC_MODE_HEAT, HVAC_MODE_AUTO] <-- TODO: Re-introduce 'Auto' mode for AI...
         return [HVAC_MODE_OFF, HVAC_MODE_HEAT]
 
     @property
@@ -85,13 +86,28 @@ class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
         """Return current hvac operation mode."""
         LOGGER.debug("Getting HVAC mode...")
         heat_pump_state: HeatPumpState = self.coordinator.data
-        if (
-            heat_pump_state.status == STATUS_HEAT_WATER
-            or heat_pump_state.status == STATUS_HEAT_ZONES
-        ):
-            return HVAC_MODE_HEAT
+        if heat_pump_state.has_power:
+            if heat_pump_state.zone_operation_mode == ZONE_OPERATION_MODE_HEAT_FLOW:
+                return HVAC_MODE_HEAT
+            elif heat_pump_state.zone_operation_mode == ZONE_OPERATION_MODE_CURVE:
+                return HVAC_MODE_AUTO
         else:
             return HVAC_MODE_OFF
+
+    @property
+    def hvac_action(self) -> str:
+        """Return current hvac action."""
+        LOGGER.debug("Getting HVAC action...")
+        heat_pump_state: HeatPumpState = self.coordinator.data
+        if heat_pump_state.has_power:
+            if heat_pump_state.status == ZONE_STATUS_HEAT:
+                return HVACAction.HEATING
+            elif heat_pump_state.status == ZONE_STATUS_IDLE:
+                return HVACAction.IDLE
+            else:
+                return None
+        else:
+            return HVACAction.OFF
 
     @property
     def preset_modes(self) -> list[str]:
@@ -103,9 +119,9 @@ class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
     def preset_mode(self) -> str:
         """Return current hvac operation mode."""
         heat_pump_state: HeatPumpState = self.coordinator.data
-        if heat_pump_state.operation_mode == OPERATION_MODE_AUTO:
+        if heat_pump_state.device_operation_mode == OPERATION_MODE_AUTO:
             return PRESET_NONE
-        elif heat_pump_state.operation_mode == OPERATION_MODE_FORCE_HOT_WATER:
+        elif heat_pump_state.device_operation_mode == OPERATION_MODE_FORCE_HOT_WATER:
             return PRESET_BOOST
         else:
             return None
