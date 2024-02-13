@@ -5,7 +5,6 @@ from typing import Any, Mapping
 
 import voluptuous as vol
 from homeassistant.config_entries import ConfigFlow, FlowResult
-from homeassistant.const import CONF_PASSWORD, CONF_USERNAME
 from homeassistant.helpers.selector import (
     TextSelector,
     TextSelectorConfig,
@@ -14,21 +13,22 @@ from homeassistant.helpers.selector import (
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
 from .api import (
-    Credentials,
+    CredentialsId,
     MELCloudApiClient,
     MELCloudApiClientAuthenticationError,
     MELCLoudApiClientCommunicationError,
     MELCloudApiClientError,
 )
-from .const import DOMAIN, LOGGER
-
-USERNAME_1 = "username_1"
-USERNAME_2 = "username_2"
-USERNAME_3 = "username_3"
-
-PASSWORD_1 = "password_1"
-PASSWORD_2 = "password_2"
-PASSWORD_3 = "password_3"
+from .const import (
+    DOMAIN,
+    LOGGER,
+    PASSWORD_1,
+    PASSWORD_2,
+    PASSWORD_3,
+    USERNAME_1,
+    USERNAME_2,
+    USERNAME_3,
+)
 
 
 class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
@@ -122,23 +122,23 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
         """Validate credentials."""
         LOGGER.debug("Validating API credentials...")
         client_1 = MELCloudApiClient(
-            credentials=Credentials.CREDENTIALS_1,
-            username=user_input[USERNAME_1],
-            password=user_input[PASSWORD_1],
+            credentials=CredentialsId.CREDENTIALS_1,
+            username_1=user_input[USERNAME_1],
+            password_1=user_input[PASSWORD_1],
             session=async_create_clientsession(self.hass),
         )
         await client_1.async_get_data()
         client_2 = MELCloudApiClient(
-            credentials=Credentials.CREDENTIALS_2,
-            username=user_input[USERNAME_2],
-            password=user_input[PASSWORD_2],
+            credentials=CredentialsId.CREDENTIALS_2,
+            username_1=user_input[USERNAME_2],
+            password_1=user_input[PASSWORD_2],
             session=async_create_clientsession(self.hass),
         )
         await client_2.async_get_data()
         client_3 = MELCloudApiClient(
-            credentials=Credentials.CREDENTIALS_3,
-            username=user_input[USERNAME_3],
-            password=user_input[PASSWORD_3],
+            credentials=CredentialsId.CREDENTIALS_3,
+            username_1=user_input[USERNAME_3],
+            password_1=user_input[PASSWORD_3],
             session=async_create_clientsession(self.hass),
         )
         await client_3.async_get_data()

@@ -1,24 +1,15 @@
 """Sample API Client."""
 
 from __future__ import annotations
-from enum import Enum
 from aiohttp import ClientError, ClientResponseError
 from http import HTTPStatus
-from dataclasses import dataclass
 
+from .models import Credentials, CredentialsId, HeatPumpState
 from .const import LOGGER
 
 import asyncio
 import aiohttp
 import pymelcloud
-
-
-class Credentials(Enum):
-    """The credentials set identifier"""
-
-    CREDENTIALS_1 = "credentials_1"
-    CREDENTIALS_2 = "credentials_2"
-    CREDENTIALS_3 = "credentials_3"
 
 
 class MELCloudApiClientError(Exception):
@@ -32,38 +23,13 @@ class MELCLoudApiClientCommunicationError(MELCloudApiClientError):
 class MELCloudApiClientAuthenticationError(MELCloudApiClientError):
     """Exception to indicate an authentication error."""
 
-    def __init__(self, credentials: Credentials, *args: object) -> None:
+    def __init__(self, credentials: CredentialsId, *args: object) -> None:
         super().__init__(*args)
         self._credentials = credentials
 
     @property
-    def credentials(self) -> Credentials:
+    def credentials(self) -> CredentialsId:
         return self._credentials
-
-
-@dataclass
-class HeatPumpState:
-    id: str
-    has_power: bool
-    status: str
-    device_operation_mode: str
-    zone_operation_mode: str
-    temperature_unit: str
-    temperature_increment: str
-    wifi_strength: int
-    target_flow_temperature: float
-    flow_temperature: float
-    flow_return_temperature: float
-    # forced_hot_water_mode: bool
-    # is_offline: bool
-    # target_water_tank_temperature: float
-    # water_tank_temperature: float
-    # outdoor_temperature: float
-    # holiday_mode: bool
-    # prohibit_heating: bool
-    # prohibit_water_heating: bool
-    # demand_percentage: float
-    # last_cloud_communication: str
 
 
 class MELCloudApiClient:
@@ -71,23 +37,40 @@ class MELCloudApiClient:
 
     def __init__(
         self,
-        credentials: Credentials,
-        username: str,
-        password: str,
+        credentials: list[Credentials],
         session: aiohttp.ClientSession,
     ) -> None:
-        self._credentials = credentials
         self._session = session
-        self._username = username
-        self._password = password
+        self._credentials = credentials
+        self._last_used_credentials: Credentials = None
 
     async def async_get_data(self) -> any:
         """Get data from the API."""
-        LOGGER.debug(f"Fetching data from MELCloud API using '{self._credentials}'...")
+
+        # Rotate the credentials to use for the API calls
+        credentials_to_use: Credentials
+        if self._last_used_credentials == None:
+            credentials_to_use = self._credentials[0]
+            self._last_used_credentials = self._credentials[0]
+        elif self._last_used_credentials == self._credentials[0]:
+            credentials_to_use = self._credentials[1]
+            self._last_used_credentials = self._credentials[1]
+        elif self._last_used_credentials == self._credentials[1]:
+            credentials_to_use = self._credentials[2]
+            self._last_used_credentials = self._credentials[2]
+        elif self._last_used_credentials == self._credentials[2]:
+            credentials_to_use = self._credentials[0]
+            self._last_used_credentials = self._credentials[0]
+        LOGGER.debug(
+            f"Fetching data from MELCloud API using '{credentials_to_use.id}'..."
+        )
+
         try:
-            # Log in to API
+            # Get an access token for the API
             access_token = await pymelcloud.login(
-                self._username, self._password, session=self._session
+                credentials_to_use.username,
+                credentials_to_use.password,
+                session=self._session,
             )
 
             # Fetch the first air-to-water device

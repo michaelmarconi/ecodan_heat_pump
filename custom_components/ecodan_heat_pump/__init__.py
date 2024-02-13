@@ -11,15 +11,12 @@ from homeassistant.const import CONF_PASSWORD, CONF_USERNAME, Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from .api import Credentials, MELCloudApiClient
-from .const import DOMAIN
+from custom_components.ecodan_heat_pump.models import Credentials
+
+from .api import CredentialsId, MELCloudApiClient
+from .const import DOMAIN, PASSWORD_1, PASSWORD_2, USERNAME_1, USERNAME_2, USERNAME_3
 from .coordinator import EcodanHeatPumpDataUpdateCoordinator
-from .config_flow import (
-    USERNAME_1,
-    PASSWORD_1,
-    USERNAME_2,
-    PASSWORD_2,
-    USERNAME_3,
+from .const import (
     PASSWORD_3,
 )
 
@@ -35,20 +32,31 @@ PLATFORMS: list[Platform] = [
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up this integration using UI."""
     hass.data.setdefault(DOMAIN, {})
+
+    # Assemble credentials from pre-existing config
+    credentials_1 = Credentials(
+        CredentialsId.CREDENTIALS_1, entry.data[USERNAME_1], entry.data[PASSWORD_1]
+    )
+    credentials_2 = Credentials(
+        CredentialsId.CREDENTIALS_2, entry.data[USERNAME_2], entry.data[PASSWORD_2]
+    )
+    credentials_3 = Credentials(
+        CredentialsId.CREDENTIALS_3, entry.data[USERNAME_3], entry.data[PASSWORD_3]
+    )
+
+    # Set up data coordinator
     hass.data[DOMAIN][entry.entry_id] = coordinator = (
         EcodanHeatPumpDataUpdateCoordinator(
             hass=hass,
             client=MELCloudApiClient(
-                credentials=Credentials.CREDENTIALS_3,
-                username=entry.data[USERNAME_3],
-                password=entry.data[PASSWORD_3],
+                credentials=[credentials_1, credentials_2, credentials_3],
                 session=async_get_clientsession(hass),
             ),
         )
     )
+
     # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
     await coordinator.async_config_entry_first_refresh()
-
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
     entry.async_on_unload(entry.add_update_listener(async_reload_entry))
 

@@ -38,7 +38,9 @@ class EcodanHeatPumpDataUpdateCoordinator(DataUpdateCoordinator):
             hass=hass,
             logger=LOGGER,
             name=DOMAIN,
-            update_interval=timedelta(minutes=5),
+            update_interval=timedelta(
+                seconds=(5 * 60) / 3
+            ),  # 5 minute interval per credential = 100s
         )
 
     async def _async_update_data(self):
