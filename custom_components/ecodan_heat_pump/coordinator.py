@@ -13,7 +13,6 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.exceptions import ConfigEntryAuthFailed
 
 from .api import (
-    HeatPumpState,
     MELCloudApiClient,
     MELCloudApiClientAuthenticationError,
     MELCloudApiClientError,

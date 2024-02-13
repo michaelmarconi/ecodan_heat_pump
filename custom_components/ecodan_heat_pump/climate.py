@@ -12,6 +12,7 @@ from homeassistant.components.climate.const import (
     HVAC_MODE_AUTO,
     HVAC_MODE_OFF,
     HVACAction,
+    HVACMode,
     PRESET_NONE,
     PRESET_BOOST,
 )
@@ -147,7 +148,13 @@ class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
 
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:
         """Set new target hvac mode."""
-        LOGGER.debug("Setting HVAC mode...")
+        LOGGER.debug(f"Setting HVAC mode to '{hvac_mode}'...")
+        if hvac_mode == HVACMode.OFF:
+            await self.coordinator.api.async_switch_off_heat_pump()
+        elif hvac_mode == HVACMode.HEAT:
+            LOGGER.debug("Setting HVAC mode to 'heat'...")
+        elif hvac_mode == HVACMode.AUTO:
+            LOGGER.debug("Setting HVAC mode to 'auto'...")
         return
 
     async def async_set_preset_mode(self, preset_mode):

@@ -7,7 +7,6 @@ LOGGER: Logger = getLogger(__package__)
 NAME = "Ecodan Heat Pump"
 DOMAIN = "ecodan_heat_pump"
 VERSION = "0.0.0"
-ATTRIBUTION = "Data provided by http://jsonplaceholder.typicode.com/"
 
 USERNAME_1 = "username_1"
 PASSWORD_1 = "password_1"
