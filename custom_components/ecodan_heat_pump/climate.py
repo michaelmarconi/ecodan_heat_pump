@@ -139,6 +139,14 @@ class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
         heat_pump_state: HeatPumpState = self.coordinator.data
         return heat_pump_state.target_flow_temperature
 
+    async def async_turn_on(self):
+        """Turn heat pump on."""
+        LOGGER.debug("Turning off?")
+
+    async def async_turn_off(self):
+        """Turn heat pump off."""
+        LOGGER.debug("Turning off?")
+
     async def async_set_temperature(self, **kwargs) -> None:
         """
         Set new target temperature.
@@ -150,7 +158,7 @@ class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
         """Set new target hvac mode."""
         LOGGER.debug(f"Setting HVAC mode to '{hvac_mode}'...")
         if hvac_mode == HVACMode.OFF:
-            await self.coordinator.api.async_switch_off_heat_pump()
+            await self.coordinator.client.async_switch_off_heat_pump()
         elif hvac_mode == HVACMode.HEAT:
             LOGGER.debug("Setting HVAC mode to 'heat'...")
         elif hvac_mode == HVACMode.AUTO:

@@ -5,14 +5,14 @@ from __future__ import annotations
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import ATTRIBUTION, DOMAIN, NAME, VERSION
+from .const import DOMAIN, NAME, VERSION
 from .coordinator import EcodanHeatPumpDataUpdateCoordinator
 
 
 class EcodanHeatPumpEntity(CoordinatorEntity):
     """Ecodan Heat Pump entity class."""
 
-    _attr_attribution = ATTRIBUTION
+    _attr_attribution = "Blah blah..."
 
     def __init__(self, coordinator: EcodanHeatPumpDataUpdateCoordinator) -> None:
         """Initialize."""
