@@ -22,15 +22,12 @@ from pymelcloud.atw_device import (
     STATUS_HEAT_WATER,
     STATUS_HEAT_ZONES,
     STATUS_UNKNOWN,
-    ZONE_OPERATION_MODE_COOL_FLOW,
-    ZONE_OPERATION_MODE_COOL_THERMOSTAT,
     ZONE_OPERATION_MODE_CURVE,
     ZONE_OPERATION_MODE_HEAT_FLOW,
     ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
     ZONE_STATUS_HEAT,
     ZONE_STATUS_IDLE,
     ZONE_STATUS_UNKNOWN,
-    AtwDevice,
 )
 
 from custom_components.ecodan_heat_pump.api import HeatPumpState
@@ -88,13 +85,13 @@ class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
         """Return current hvac operation mode."""
         LOGGER.debug("Getting HVAC mode...")
         heat_pump_state: HeatPumpState = self.coordinator.data
-        match heat_pump_state.operation_mode:
-            case OPERATION_MODE_AUTO:
-                return HVAC_MODE_AUTO
-
-        LOGGER.debug(heat_pump_state)
-        return None
-        # return HVAC_MODE_HEAT
+        if (
+            heat_pump_state.status == STATUS_HEAT_WATER
+            or heat_pump_state.status == STATUS_HEAT_ZONES
+        ):
+            return HVAC_MODE_HEAT
+        else:
+            return HVAC_MODE_OFF
 
     @property
     def preset_modes(self) -> list[str]:
@@ -116,12 +113,14 @@ class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
     @property
     def current_temperature(self) -> float | None:
         """Return the current temperature."""
-        return 33
+        heat_pump_state: HeatPumpState = self.coordinator.data
+        return heat_pump_state.flow_temperature
 
     @property
     def target_temperature(self) -> float | None:
         """Return the temperature we try to reach."""
-        return 36
+        heat_pump_state: HeatPumpState = self.coordinator.data
+        return heat_pump_state.target_flow_temperature
 
     async def async_set_temperature(self, **kwargs) -> None:
         """
