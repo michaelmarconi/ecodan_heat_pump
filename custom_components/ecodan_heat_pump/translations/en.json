@@ -3,7 +3,7 @@
         "step": {
             "user": {
                 "title": "Add API users",
-                "description": "Add one or more MELCloud users to reduce the polling time on the API. If you need help with the configuration have a look here: https://github.com/michaelmarconi/ecodan_heat_pump",
+                "description": "Add multiple MELCloud users to reduce the polling time on the API. If you need help with the configuration have a look here: https://github.com/michaelmarconi/ecodan_heat_pump",
                 "data": {
                     "username_1": "Username 1",
                     "username_2": "Username 2",
@@ -17,6 +17,9 @@
             }
         },
         "error": {
+            "credentials_1": "Username/Password 1 is incorrect!",
+            "credentials_2": "Username/Password 2 is incorrect!",
+            "credentials_3": "Username/Password 3 is incorrect!",
             "auth": "Username/Password is wrong.",
             "connection": "Unable to connect to the server.",
             "unknown": "Unknown error occurred."
