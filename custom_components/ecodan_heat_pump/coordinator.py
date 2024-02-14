@@ -13,9 +13,9 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.exceptions import ConfigEntryAuthFailed
 
 from .api import (
-    MELCloudApiClient,
-    MELCloudApiClientAuthenticationError,
-    MELCloudApiClientError,
+    ApiClient,
+    ApiClientAuthenticationError,
+    ApiClientError,
 )
 from .const import DOMAIN, LOGGER
 
@@ -29,7 +29,7 @@ class EcodanHeatPumpDataUpdateCoordinator(DataUpdateCoordinator):
     def __init__(
         self,
         hass: HomeAssistant,
-        client: MELCloudApiClient,
+        client: ApiClient,
     ) -> None:
         """Initialize."""
         self.client = client
@@ -47,7 +47,7 @@ class EcodanHeatPumpDataUpdateCoordinator(DataUpdateCoordinator):
         LOGGER.debug("Updating coordinator state...")
         try:
             return await self.client.async_get_data()
-        except MELCloudApiClientAuthenticationError as exception:
+        except ApiClientAuthenticationError as exception:
             raise ConfigEntryAuthFailed(exception) from exception
-        except MELCloudApiClientError as exception:
+        except ApiClientError as exception:
             raise UpdateFailed(exception) from exception

@@ -13,7 +13,7 @@ from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
 from custom_components.ecodan_heat_pump.models import Credentials
 
-from .api import CredentialsId, MELCloudApiClient
+from .api import CredentialsId, ApiClient
 from .const import DOMAIN, PASSWORD_1, PASSWORD_2, USERNAME_1, USERNAME_2, USERNAME_3
 from .coordinator import EcodanHeatPumpDataUpdateCoordinator
 from .const import (
@@ -48,7 +48,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data[DOMAIN][entry.entry_id] = coordinator = (
         EcodanHeatPumpDataUpdateCoordinator(
             hass=hass,
-            client=MELCloudApiClient(
+            client=ApiClient(
                 credentials=[credentials_1, credentials_2, credentials_3],
                 session=async_get_clientsession(hass),
             ),

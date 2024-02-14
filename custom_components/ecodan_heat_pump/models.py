@@ -1,13 +1,30 @@
+import datetime
+
 from dataclasses import dataclass
 from enum import Enum
+from typing import Optional
 
 
 class CredentialsId(Enum):
-    """The credentials set identifier"""
-
     CREDENTIALS_1 = "credentials_1"
     CREDENTIALS_2 = "credentials_2"
     CREDENTIALS_3 = "credentials_3"
+
+
+class TargetTemperatureType(Enum):
+    ROOM_TEMPERATURE = "room_temperature"
+    FLOW_TEMPERATURE = "flow_temperature"
+    CURVE_TEMPERATURE = "curve_temperature"
+
+
+class HeatingMode(Enum):
+    AUTO = "auto"
+    HEAT_WATER = "heat_water"
+
+
+class HeatingStatus(Enum):
+    HEATING = "heating"
+    IDLE = "idle"
 
 
 @dataclass
@@ -15,28 +32,42 @@ class Credentials:
     id: CredentialsId
     username: str
     password: str
+    access_token: Optional[str] = None
 
 
 @dataclass
 class HeatPumpState:
-    id: str
+    device_id: str
+    wifi_status: str
+    wifi_signal_stregth: int
     has_power: bool
-    status: str
-    device_operation_mode: str
-    zone_operation_mode: str
-    temperature_unit: str
-    temperature_increment: str
-    wifi_strength: int
+    has_error: bool
+    is_offline: bool
+    is_holiday_mode: bool
+    is_defrost_mode: bool
+    is_eco_hot_water: bool
+    is_heating_prohibited: bool
+    is_heating_water_prohibited: bool
+    is_forced_to_heat_water: bool
+    heating_mode: HeatingMode
+    heating_status: HeatingStatus
+    target_temperature_type: TargetTemperatureType
     target_flow_temperature: float
     flow_temperature: float
-    flow_return_temperature: float
-    # forced_hot_water_mode: bool
-    # is_offline: bool
-    # target_water_tank_temperature: float
-    # water_tank_temperature: float
-    # outdoor_temperature: float
-    # holiday_mode: bool
-    # prohibit_heating: bool
-    # prohibit_water_heating: bool
-    # demand_percentage: float
-    # last_cloud_communication: str
+    return_temperature: float
+    target_water_tank_temperature: float
+    water_tank_temperature: float
+    outdoor_temperature: float
+    demand_percentage: float
+    last_communication: datetime
+    rate_of_current_energy_consumption: float
+    rate_of_current_energy_production: float
+    current_coefficient_of_performance: float
+    daily_energy_report_date: datetime
+    daily_heating_energy_consumed: float
+    daily_heating_energy_produced: float
+    daily_hot_water_energy_consumed: float
+    daily_hot_water_energy_produced: float
+    daily_total_energy_consumed: float
+    daily_total_energy_produced: float
+    daily_coefficient_of_performance: float

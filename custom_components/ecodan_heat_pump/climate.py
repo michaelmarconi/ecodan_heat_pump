@@ -33,7 +33,7 @@ from pymelcloud.atw_device import (
     ZONE_STATUS_UNKNOWN,
 )
 
-from custom_components.ecodan_heat_pump.api import HeatPumpState
+from custom_components.ecodan_heat_pump.models import HeatPumpState
 
 from .const import DOMAIN, LOGGER
 from .coordinator import EcodanHeatPumpDataUpdateCoordinator
