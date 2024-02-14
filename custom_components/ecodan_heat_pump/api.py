@@ -73,7 +73,7 @@ class ApiClient:
             raise ApiClientError(
                 f"Credentials '{credentials.id}' already has an access token!"
             )
-        response = await self.async_api_post(
+        response = await self._async_api_post(
             LOGIN_URL,
             {
                 "Email": credentials.username,
@@ -111,14 +111,14 @@ class ApiClient:
             await self.async_login(credentials)
 
         # List data about all devices
-        data = await self.async_api_get(LIST_DEVICES_URL, credentials)
+        data = await self._async_api_get(LIST_DEVICES_URL, credentials)
 
-        heat_pump_state = self.map_api_data(data)
+        heat_pump_state = self._map_api_data(data)
 
         LOGGER.debug(heat_pump_state)
         return heat_pump_state
 
-    def map_api_data(self, data: json) -> HeatPumpState:
+    def _map_api_data(self, data: json) -> HeatPumpState:
         """Map the response from the API to the heat pump state model"""
         try:
             heat_pump_data = data[0]
@@ -136,31 +136,9 @@ class ApiClient:
                 is_heating_prohibited=device["ProhibitHeatingZone1"],
                 is_heating_water_prohibited=device["ProhibitHotWater"],
                 is_forced_to_heat_water=device["ForcedHotWaterMode"],
-                heating_mode=(
-                    HeatingMode.AUTO
-                    if device["OperationMode"] == 1
-                    else (
-                        HeatingMode.HEAT_WATER if device["OperationMode"] == 2 else None
-                    )
-                ),
-                heating_status=(
-                    HeatingStatus.IDLE
-                    if device["IdleZone1"] == True
-                    else HeatingStatus.HEATING
-                ),
-                target_temperature_type=(
-                    TargetTemperatureType.ROOM_TEMPERATURE
-                    if device["OperationModeZone1"] == 0
-                    else (
-                        TargetTemperatureType.FLOW_TEMPERATURE
-                        if device["OperationModeZone1"] == 1
-                        else (
-                            TargetTemperatureType.CURVE_TEMPERATURE
-                            if device["OperationModeZone1"] == 2
-                            else None
-                        )
-                    )
-                ),
+                heating_mode=self._determine_heating_mode(device),
+                heating_status=self._determine_heating_status(device),
+                target_temperature_type=self._determine_target_temperature_type(device),
                 target_flow_temperature=device["SetHeatFlowTemperatureZone1"],
                 flow_temperature=device["FlowTemperature"],
                 return_temperature=device["ReturnTemperature"],
@@ -171,10 +149,8 @@ class ApiClient:
                 last_communication=parser.parse(device["LastTimeStamp"]),
                 rate_of_current_energy_consumption=device["CurrentEnergyConsumed"],
                 rate_of_current_energy_production=device["CurrentEnergyProduced"],
-                current_coefficient_of_performance=(
-                    device["CurrentEnergyConsumed"] / device["CurrentEnergyProduced"]
-                    if device["CurrentEnergyProduced"] > 0
-                    else 0
+                current_coefficient_of_performance=self._determine_current_coefficient_of_performance(
+                    device
                 ),
                 daily_energy_report_date=parser.parse(
                     device["DailyEnergyConsumedDate"]
@@ -183,29 +159,14 @@ class ApiClient:
                 daily_heating_energy_produced=device["DailyHeatingEnergyProduced"],
                 daily_hot_water_energy_consumed=device["DailyHotWaterEnergyConsumed"],
                 daily_hot_water_energy_produced=device["DailyHotWaterEnergyProduced"],
-                daily_total_energy_consumed=(
-                    device["DailyHeatingEnergyConsumed"]
-                    + device["DailyHotWaterEnergyConsumed"]
+                daily_total_energy_consumed=self._determine_daily_total_energy_consumed(
+                    device
                 ),
-                daily_total_energy_produced=(
-                    device["DailyHeatingEnergyProduced"]
-                    + device["DailyHotWaterEnergyProduced"]
+                daily_total_energy_produced=self._determine_daily_total_energy_produced(
+                    device
                 ),
-                daily_coefficient_of_performance=(
-                    (
-                        device["DailyHeatingEnergyConsumed"]
-                        + device["DailyHotWaterEnergyConsumed"]
-                    )
-                    / (
-                        device["DailyHeatingEnergyProduced"]
-                        + device["DailyHotWaterEnergyProduced"]
-                    )
-                    if (
-                        device["DailyHeatingEnergyProduced"]
-                        + device["DailyHotWaterEnergyProduced"]
-                    )
-                    > 0
-                    else 0
+                daily_coefficient_of_performance=self._determine_daily_coefficient_of_performance(
+                    device
                 ),
             )
             return heat_pump_state
@@ -215,7 +176,76 @@ class ApiClient:
                 "Failed to map API data to heat pump state!"
             ) from exception
 
-    async def async_api_post(
+    def _determine_daily_coefficient_of_performance(self, device):
+        return (
+            round(
+                (
+                    device["DailyHeatingEnergyConsumed"]
+                    + device["DailyHotWaterEnergyConsumed"]
+                )
+                / (
+                    device["DailyHeatingEnergyProduced"]
+                    + device["DailyHotWaterEnergyProduced"]
+                ),
+                2,
+            )
+            if (
+                device["DailyHeatingEnergyProduced"]
+                + device["DailyHotWaterEnergyProduced"]
+            )
+            > 0
+            else 0
+        )
+
+    def _determine_daily_total_energy_produced(self, device):
+        return round(
+            device["DailyHeatingEnergyProduced"]
+            + device["DailyHotWaterEnergyProduced"],
+            2,
+        )
+
+    def _determine_daily_total_energy_consumed(self, device):
+        return round(
+            device["DailyHeatingEnergyConsumed"]
+            + device["DailyHotWaterEnergyConsumed"],
+            2,
+        )
+
+    def _determine_heating_mode(self, device) -> HeatingMode:
+        return (
+            HeatingMode.AUTO
+            if device["OperationMode"] == 1
+            else (HeatingMode.HEAT_WATER if device["OperationMode"] == 2 else None)
+        )
+
+    def _determine_heating_status(self, device) -> HeatingStatus:
+        return (
+            HeatingStatus.IDLE if device["IdleZone1"] == True else HeatingStatus.HEATING
+        )
+
+    def _determine_target_temperature_type(self, device) -> TargetTemperatureType:
+        return (
+            TargetTemperatureType.ROOM_TEMPERATURE
+            if device["OperationModeZone1"] == 0
+            else (
+                TargetTemperatureType.FLOW_TEMPERATURE
+                if device["OperationModeZone1"] == 1
+                else (
+                    TargetTemperatureType.CURVE_TEMPERATURE
+                    if device["OperationModeZone1"] == 2
+                    else None
+                )
+            )
+        )
+
+    def _determine_current_coefficient_of_performance(self, device) -> float:
+        return (
+            round(device["CurrentEnergyConsumed"] / device["CurrentEnergyProduced"], 2)
+            if device["CurrentEnergyProduced"] > 0
+            else 0
+        )
+
+    async def _async_api_post(
         self,
         url,
         data: dict,
@@ -242,7 +272,7 @@ class ApiClient:
         except Exception as exception:  # pylint: disable=broad-except
             raise ApiClientError("Something really wrong happened!") from exception
 
-    async def async_api_get(
+    async def _async_api_get(
         self,
         url,
         credentials: Credentials,
@@ -286,37 +316,3 @@ class ApiClient:
             ) from exception
         except Exception as exception:  # pylint: disable=broad-except
             raise ApiClientError("Something really wrong happened!") from exception
-
-    # async def _api_wrapper(
-    #     self,
-    #     method: str,
-    #     url: str,
-    #     data: dict | None = None,
-    #     headers: dict | None = None,
-    # ) -> any:
-    #     """Get information from the API."""
-    #     try:
-    #         async with async_timeout.timeout(10):
-    #             response = await self._session.request(
-    #                 method=method,
-    #                 url=url,
-    #                 headers=headers,
-    #                 json=data,
-    #             )
-    #             if response.status in (401, 403):
-    #                 raise ApiClientAuthenticationError(
-    #                     "Invalid credentials",
-    #                 )
-    #             response.raise_for_status()
-    #             return await response.json()
-
-    #     except asyncio.TimeoutError as exception:
-    #         raise ApiClientCommunicationError(
-    #             "Timeout error fetching information",
-    #         ) from exception
-    #     except (aiohttp.ClientError, socket.gaierror) as exception:
-    #         raise ApiClientCommunicationError(
-    #             "Error fetching information",
-    #         ) from exception
-    #     except Exception as exception:  # pylint: disable=broad-except
-    #         raise ApiClientError("Something really wrong happened!") from exception
