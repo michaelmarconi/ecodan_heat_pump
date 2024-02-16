@@ -5,7 +5,7 @@ from __future__ import annotations
 from homeassistant.components.switch import SwitchEntity, SwitchEntityDescription
 
 from .const import DOMAIN
-from .coordinator import EcodanHeatPumpDataUpdateCoordinator
+from .coordinator import Coordinator
 from .entity import EcodanHeatPumpEntity
 
 ENTITY_DESCRIPTIONS = (
@@ -34,7 +34,7 @@ class IntegrationBlueprintSwitch(EcodanHeatPumpEntity, SwitchEntity):
 
     def __init__(
         self,
-        coordinator: EcodanHeatPumpDataUpdateCoordinator,
+        coordinator: Coordinator,
         entity_description: SwitchEntityDescription,
     ) -> None:
         """Initialize the switch class."""

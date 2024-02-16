@@ -11,14 +11,21 @@ from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 
-from custom_components.ecodan_heat_pump.models import Credentials
-
-from .api import CredentialsId, ApiClient
-from .const import DOMAIN, PASSWORD_1, PASSWORD_2, USERNAME_1, USERNAME_2, USERNAME_3
-from .coordinator import EcodanHeatPumpDataUpdateCoordinator
-from .const import (
+from custom_components.ecodan_heat_pump.api import ApiClient
+from custom_components.ecodan_heat_pump.const import (
+    DOMAIN,
+    PASSWORD_1,
+    PASSWORD_2,
     PASSWORD_3,
+    USERNAME_1,
+    USERNAME_2,
+    USERNAME_3,
 )
+from custom_components.ecodan_heat_pump.coordinator import (
+    Coordinator,
+)
+from custom_components.ecodan_heat_pump.models import Credentials, CredentialsId
+
 
 PLATFORMS: list[Platform] = [
     # Platform.SENSOR,
@@ -31,6 +38,8 @@ PLATFORMS: list[Platform] = [
 # https://developers.home-assistant.io/docs/config_entries_index/#setting-up-an-entry
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up this integration using UI."""
+
+    # Set default data for the coordinator
     hass.data.setdefault(DOMAIN, {})
 
     # Assemble credentials from pre-existing config
@@ -45,14 +54,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     )
 
     # Set up data coordinator
-    hass.data[DOMAIN][entry.entry_id] = coordinator = (
-        EcodanHeatPumpDataUpdateCoordinator(
-            hass=hass,
-            client=ApiClient(
-                credentials=[credentials_1, credentials_2, credentials_3],
-                session=async_get_clientsession(hass),
-            ),
-        )
+    hass.data[DOMAIN][entry.entry_id] = coordinator = Coordinator(
+        hass=hass,
+        client=ApiClient(
+            credentials=[credentials_1, credentials_2, credentials_3],
+            session=async_get_clientsession(hass),
+        ),
     )
 
     # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities

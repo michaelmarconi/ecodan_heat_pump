@@ -5,8 +5,10 @@ from __future__ import annotations
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
-from .const import DOMAIN, NAME, VERSION
-from .coordinator import EcodanHeatPumpDataUpdateCoordinator
+from custom_components.ecodan_heat_pump.const import DOMAIN, NAME, VERSION
+from custom_components.ecodan_heat_pump.coordinator import (
+    Coordinator,
+)
 
 
 class EcodanHeatPumpEntity(CoordinatorEntity):
@@ -14,7 +16,7 @@ class EcodanHeatPumpEntity(CoordinatorEntity):
 
     _attr_attribution = "Blah blah..."
 
-    def __init__(self, coordinator: EcodanHeatPumpDataUpdateCoordinator) -> None:
+    def __init__(self, coordinator: Coordinator) -> None:
         """Initialize."""
         super().__init__(coordinator)
         self._attr_unique_id = coordinator.config_entry.entry_id

@@ -9,53 +9,117 @@ import json
 import aiohttp
 import async_timeout
 
-from .models import (
+from custom_components.ecodan_heat_pump.errors import (
+    ApiClientAuthenticationException,
+    ApiClientCommunicationException,
+    ApiClientException,
+)
+from custom_components.ecodan_heat_pump.models import (
     Credentials,
     CredentialsId,
     HeatPumpState,
     HeatingMode,
     HeatingStatus,
-    TargetTemperatureType,
+    ThermostatMode,
 )
-from .const import LOGGER
+from custom_components.ecodan_heat_pump.const import LOGGER
 
 BASE_URL = "https://app.melcloud.com/Mitsubishi.Wifi.Client"
 LOGIN_URL = f"{BASE_URL}/Login/ClientLogin"
 LIST_DEVICES_URL = f"{BASE_URL}/User/ListDevices"
-
-
-class ApiClientError(Exception):
-    """Exception to indicate a general API error."""
-
-
-class ApiClientCommunicationError(ApiClientError):
-    """Exception to indicate a communication error."""
-
-
-class ApiClientAuthenticationError(ApiClientError):
-    """Exception to indicate an authentication error."""
+SETTINGS_URL = f"{BASE_URL}/Device/SetAtw"
 
 
 class ApiClient:
-    """This is the MELCLoud API client"""
+    """
+    This is the MELCLoud API client
+    """
 
     def __init__(
         self,
         credentials: list[Credentials],
         session: aiohttp.ClientSession,
     ) -> None:
+        self._session = session
         self._credentials = credentials
         self._credentials_last_used: Credentials = None
-        self._session = session
 
-    def get_next_credentials(self) -> Credentials:
+    async def async_get_data(self) -> HeatPumpState:
+        """Update the heat pump state model"""
+
+        # Get the next set of credentials to use
+        credentials = await self._async_get_next_credentials()
+
+        # List data about all devices
+        response = await self._async_api_get(LIST_DEVICES_URL, credentials)
+
+        # Update the stored heat pump state from the API request
+        self._update_heat_pump_state_from_api_response(response)
+
+        return self._heat_pump_state
+
+    async def async_toggle_heat_pump_power(self, deviceId: str, power: bool) -> bool:
+        """Toggle the heat pump power on or off"""
+
+        # Get the next set of credentials to use
+        credentials = await self._async_get_next_credentials()
+
+        # Set state using the API
+        response = await self._async_api_post(
+            SETTINGS_URL,
+            credentials,
+            {"EffectiveFlags": 1, "DeviceID": deviceId, "Power": power},
+        )
+
+        # Extract the updated power attribute from the response
+        has_power: bool = response["Power"]
+
+        return has_power
+
+    async def async_set_thermostat_mode(self, mode: ThermostatMode) -> HeatPumpState:
+        """Set the thermostat mode (room/flow/curve)"""
+
+        LOGGER.debug(f"Setting the thermostat mode to '{mode}'...")
+
+        # Make sure we have heat pump state
+        if self._heat_pump_state == None:
+            await self.async_get_data()
+
+        # Get the next set of credentials to use
+        credentials = await self._async_get_next_credentials()
+
+        data = {
+            "EffectiveFlags": 67108872,
+            "OperationModeZone1": None,  # This switches the mode
+            "DeviceID": 55125051,
+        }
+        match mode:
+            case ThermostatMode.ROOM_TEMPERATURE:
+                data["OperationModeZone1"] = 0
+            case ThermostatMode.FLOW_TEMPERATURE:
+                data["OperationModeZone1"] = 1
+            case ThermostatMode.CURVE_TEMPERATURE:
+                data["OperationModeZone1"] = 2
+
+        # Set state using the API
+        response = await self._async_api_post(
+            SETTINGS_URL,
+            credentials,
+            data,
+        )
+
+        # Map heat pump state to API response
+        heat_pump_state = self._update_heat_pump_state_from_api_response(response)
+
+        return heat_pump_state
+
+    async def _async_get_next_credentials(self) -> Credentials:
         """Get the next set of credentials to use in the series"""
+        next_credentials: Credentials
         if self._credentials_last_used == None:
             next_credentials = self._credentials[0]
             self._credentials_last_used = next_credentials
-            return next_credentials
         else:
-            next_credentials: Credentials
             match self._credentials_last_used.id:
                 case CredentialsId.CREDENTIALS_1:
                     next_credentials = self._credentials[1]
@@ -64,18 +128,24 @@ class ApiClient:
                 case CredentialsId.CREDENTIALS_3:
                     next_credentials = self._credentials[0]
             self._credentials_last_used = next_credentials
-            LOGGER.debug(f"Using credentials '{next_credentials.id}'...")
-            return next_credentials
 
-    async def async_login(self, credentials: Credentials):
+        # Log in and get an access token if necessary
+        if next_credentials.access_token == None:
+            await self._async_login(next_credentials)
+
+        LOGGER.debug(f"Using credentials '{next_credentials.id}'...")
+        return next_credentials
+
+    async def _async_login(self, credentials: Credentials):
         """Log in and get an access token, which is stored in the credentials"""
         if credentials.access_token != None:
-            raise ApiClientError(
+            raise ApiClientException(
                 f"Credentials '{credentials.id}' already has an access token!"
             )
         response = await self._async_api_post(
-            LOGIN_URL,
-            {
+            url=LOGIN_URL,
+            credentials=None,
+            data={
                 "Email": credentials.username,
                 "Password": credentials.password,
                 "AppVersion": "1.19.1.1",
@@ -84,8 +154,8 @@ class ApiClient:
         )
         errorId = response["ErrorId"]
         if errorId != None:
-            raise ApiClientAuthenticationError(
-                f"Log in failed with credentials '{credentials.id}'!"
+            raise ApiClientAuthenticationException(
+                f"Log in failed with credentials '{credentials.id}' ({credentials.username})!"
             )
 
         try:
@@ -95,31 +165,14 @@ class ApiClient:
                 f"Successfully requested access token for credentials '{credentials.id}'."
             )
         except Exception as exception:
-            raise ApiClientError(
+            raise ApiClientException(
                 "Failed to extract API token from log in request!"
             ) from exception
         return
 
-    async def async_get_data(self) -> HeatPumpState:
-        """Update the heat pump state model"""
-
-        # Get the next set of credentials to use
-        credentials = self.get_next_credentials()
-
-        # Log in and get an access token if necessary
-        if credentials.access_token == None:
-            await self.async_login(credentials)
-
-        # List data about all devices
-        data = await self._async_api_get(LIST_DEVICES_URL, credentials)
-
-        heat_pump_state = self._map_api_data(data)
-
-        LOGGER.debug(heat_pump_state)
-        return heat_pump_state
-
-    def _map_api_data(self, data: json) -> HeatPumpState:
+    def _update_heat_pump_state_from_api_response(self, data: json):
         """Map the response from the API to the heat pump state model"""
+
         try:
             heat_pump_data = data[0]
             device = heat_pump_data["Structure"]["Devices"][0]["Device"]
@@ -138,7 +191,7 @@ class ApiClient:
                 is_forced_to_heat_water=device["ForcedHotWaterMode"],
                 heating_mode=self._determine_heating_mode(device),
                 heating_status=self._determine_heating_status(device),
-                target_temperature_type=self._determine_target_temperature_type(device),
+                thermostat_mode=self._determine_thermostat_mode(device),
                 target_flow_temperature=device["SetHeatFlowTemperatureZone1"],
                 flow_temperature=device["FlowTemperature"],
                 return_temperature=device["ReturnTemperature"],
@@ -169,10 +222,11 @@ class ApiClient:
                     device
                 ),
             )
-            return heat_pump_state
+            self._heat_pump_state = heat_pump_state
+            return
         except Exception as exception:
             LOGGER.exception(exception)
-            raise ApiClientError(
+            raise ApiClientException(
                 "Failed to map API data to heat pump state!"
             ) from exception
 
@@ -213,9 +267,9 @@ class ApiClient:
 
     def _determine_heating_mode(self, device) -> HeatingMode:
         return (
-            HeatingMode.AUTO
+            HeatingMode.HEAT_WATER
             if device["OperationMode"] == 1
-            else (HeatingMode.HEAT_WATER if device["OperationMode"] == 2 else None)
+            else (HeatingMode.AUTO if device["OperationMode"] == 2 else None)
         )
 
     def _determine_heating_status(self, device) -> HeatingStatus:
@@ -223,15 +277,15 @@ class ApiClient:
             HeatingStatus.IDLE if device["IdleZone1"] == True else HeatingStatus.HEATING
         )
 
-    def _determine_target_temperature_type(self, device) -> TargetTemperatureType:
+    def _determine_thermostat_mode(self, device) -> ThermostatMode:
         return (
-            TargetTemperatureType.ROOM_TEMPERATURE
+            ThermostatMode.ROOM_TEMPERATURE
             if device["OperationModeZone1"] == 0
             else (
-                TargetTemperatureType.FLOW_TEMPERATURE
+                ThermostatMode.FLOW_TEMPERATURE
                 if device["OperationModeZone1"] == 1
                 else (
-                    TargetTemperatureType.CURVE_TEMPERATURE
+                    ThermostatMode.CURVE_TEMPERATURE
                     if device["OperationModeZone1"] == 2
                     else None
                 )
@@ -248,29 +302,52 @@ class ApiClient:
     async def _async_api_post(
         self,
         url,
+        credentials: Credentials | None,
         data: dict,
     ) -> any:
         """Post data to the MELCloud API."""
+        headers = {
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Accept-Encoding": "gzip, deflate, br",
+            "Accept-Language": "en-GB,en;q=0.9",
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "Host": "app.melcloud.com",
+            "Pragma": "no-cache",
+            "Referer": "https://app.melcloud.com/",
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "same-origin",
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15",
+            "X-Requested-With": "XMLHttpRequest",
+        }
+        if credentials != None:
+            headers["X-MitsContextKey"] = credentials.access_token
+
         try:
             async with async_timeout.timeout(10):
-                response = await self._session.post(url=url, headers={}, data=data)
+                response = await self._session.post(
+                    url=url,
+                    headers=headers,
+                    json=data,
+                )
                 if response.status in (401, 403):
-                    raise ApiClientAuthenticationError(
+                    raise ApiClientAuthenticationException(
                         "Invalid credentials",
                     )
                 response.raise_for_status()
                 return await response.json()
 
         except asyncio.TimeoutError as exception:
-            raise ApiClientCommunicationError(
+            raise ApiClientCommunicationException(
                 "Timeout error fetching information",
             ) from exception
         except (aiohttp.ClientError, socket.gaierror) as exception:
-            raise ApiClientCommunicationError(
+            raise ApiClientCommunicationException(
                 "Error fetching information",
             ) from exception
         except Exception as exception:  # pylint: disable=broad-except
-            raise ApiClientError("Something really wrong happened!") from exception
+            raise ApiClientException("Something really wrong happened!") from exception
 
     async def _async_api_get(
         self,
@@ -300,19 +377,19 @@ class ApiClient:
                     },
                 )
                 if response.status in (401, 403):
-                    raise ApiClientAuthenticationError(
+                    raise ApiClientAuthenticationException(
                         "Invalid credentials",
                     )
                 response.raise_for_status()
                 return await response.json()
 
         except asyncio.TimeoutError as exception:
-            raise ApiClientCommunicationError(
+            raise ApiClientCommunicationException(
                 "Timeout error fetching information",
             ) from exception
         except (aiohttp.ClientError, socket.gaierror) as exception:
-            raise ApiClientCommunicationError(
+            raise ApiClientCommunicationException(
                 "Error fetching information",
             ) from exception
         except Exception as exception:  # pylint: disable=broad-except
-            raise ApiClientError("Something really wrong happened!") from exception
+            raise ApiClientException("Something really wrong happened!") from exception

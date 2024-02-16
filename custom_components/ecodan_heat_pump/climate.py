@@ -8,9 +8,6 @@ from homeassistant.components.climate import (
     ClimateEntityFeature,
 )
 from homeassistant.components.climate.const import (
-    HVAC_MODE_HEAT,
-    HVAC_MODE_AUTO,
-    HVAC_MODE_OFF,
     HVACAction,
     HVACMode,
     PRESET_NONE,
@@ -18,26 +15,19 @@ from homeassistant.components.climate.const import (
 )
 from homeassistant.const import TEMP_CELSIUS
 
-from pymelcloud.atw_device import (
-    OPERATION_MODE_AUTO,
-    OPERATION_MODE_FORCE_HOT_WATER,
-    STATUS_HEAT_WATER,
-    STATUS_HEAT_ZONES,
-    STATUS_STANDBY,
-    STATUS_UNKNOWN,
-    ZONE_OPERATION_MODE_CURVE,
-    ZONE_OPERATION_MODE_HEAT_FLOW,
-    ZONE_OPERATION_MODE_HEAT_THERMOSTAT,
-    ZONE_STATUS_HEAT,
-    ZONE_STATUS_IDLE,
-    ZONE_STATUS_UNKNOWN,
+from custom_components.ecodan_heat_pump.errors import UnrecognisedPresetModeException
+from custom_components.ecodan_heat_pump.api import ApiClient
+from custom_components.ecodan_heat_pump.models import (
+    HeatPumpState,
+    HeatingMode,
+    HeatingStatus,
+    ThermostatMode,
 )
-
-from custom_components.ecodan_heat_pump.models import HeatPumpState
-
-from .const import DOMAIN, LOGGER
-from .coordinator import EcodanHeatPumpDataUpdateCoordinator
-from .entity import EcodanHeatPumpEntity
+from custom_components.ecodan_heat_pump.const import DOMAIN, LOGGER
+from custom_components.ecodan_heat_pump.coordinator import (
+    Coordinator,
+)
+from custom_components.ecodan_heat_pump.entity import EcodanHeatPumpEntity
 
 ENTITY_DESCRIPTIONS = (
     ClimateEntityDescription(
@@ -52,7 +42,7 @@ async def async_setup_entry(hass, entry, async_add_devices):
     """Set up the climate platform."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
     async_add_devices(
-        EcodanHeatPumpThermostatEntity(
+        EcodanHeatPumpClimateEntity(
             coordinator=coordinator,
             entity_description=entity_description,
         )
@@ -60,12 +50,12 @@ async def async_setup_entry(hass, entry, async_add_devices):
     )
 
 
-class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
+class EcodanHeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
     """Ecodan Heat Pump climate class."""
 
     def __init__(
         self,
-        coordinator: EcodanHeatPumpDataUpdateCoordinator,
+        coordinator: Coordinator,
         entity_description: ClimateEntityDescription,
     ) -> None:
         """Initialize the climate class."""
@@ -75,12 +65,11 @@ class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
         self._attr_supported_features = (
             ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE
         )
-        self._attr_preset_mode = PRESET_NONE
 
     @property
     def hvac_modes(self) -> list[str]:
         """Return the list of available hvac operation modes."""
-        return [HVAC_MODE_OFF, HVAC_MODE_HEAT]
+        return [HVACMode.OFF, HVACMode.HEAT]
 
     @property
     def hvac_mode(self) -> str:
@@ -88,12 +77,12 @@ class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
         LOGGER.debug("Getting HVAC mode...")
         heat_pump_state: HeatPumpState = self.coordinator.data
         if heat_pump_state.has_power:
-            if heat_pump_state.zone_operation_mode == ZONE_OPERATION_MODE_HEAT_FLOW:
-                return HVAC_MODE_HEAT
-            elif heat_pump_state.zone_operation_mode == ZONE_OPERATION_MODE_CURVE:
-                return HVAC_MODE_AUTO
+            if heat_pump_state.thermostat_mode == ThermostatMode.FLOW_TEMPERATURE:
+                return HVACMode.HEAT
+            elif heat_pump_state.thermostat_mode == ThermostatMode.CURVE_TEMPERATURE:
+                return HVACMode.AUTO
         else:
-            return HVAC_MODE_OFF
+            return HVACMode.OFF
 
     @property
     def hvac_action(self) -> str:
@@ -101,9 +90,9 @@ class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
         LOGGER.debug("Getting HVAC action...")
         heat_pump_state: HeatPumpState = self.coordinator.data
         if heat_pump_state.has_power:
-            if heat_pump_state.status == ZONE_STATUS_HEAT:
+            if heat_pump_state.heating_status == HeatingStatus.HEATING:
                 return HVACAction.HEATING
-            elif heat_pump_state.status == ZONE_STATUS_IDLE:
+            elif heat_pump_state.heating_status == HeatingStatus.IDLE:
                 return HVACAction.IDLE
             else:
                 return None
@@ -119,13 +108,21 @@ class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
     @property
     def preset_mode(self) -> str:
         """Return current hvac operation mode."""
+        LOGGER.debug("Getting preset mode...")
         heat_pump_state: HeatPumpState = self.coordinator.data
-        if heat_pump_state.device_operation_mode == OPERATION_MODE_AUTO:
+        if heat_pump_state.heating_mode == HeatingMode.AUTO:
+            LOGGER.debug("Preset mode is NONE")
             return PRESET_NONE
-        elif heat_pump_state.device_operation_mode == OPERATION_MODE_FORCE_HOT_WATER:
+        elif heat_pump_state.heating_mode == HeatingMode.HEAT_WATER:
+            LOGGER.debug("Preset mode is HEAT WATER")
             return PRESET_BOOST
+        elif heat_pump_state.heating_mode == None:
+            LOGGER.debug("Preset mode is NONE")
+            return PRESET_NONE
         else:
-            return None
+            raise UnrecognisedPresetModeException(
+                f"The preset mode '{heat_pump_state.heating_mode}' is not recognised!"
+            )
 
     @property
     def current_temperature(self) -> float | None:
@@ -141,11 +138,13 @@ class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
 
     async def async_turn_on(self):
         """Turn heat pump on."""
-        LOGGER.debug("Turning off?")
+        # TODO: nuke function?
+        LOGGER.warn("Turning off?")
 
     async def async_turn_off(self):
         """Turn heat pump off."""
-        LOGGER.debug("Turning off?")
+        # TODO: nuke function?
+        LOGGER.warn("Turning off?")
 
     async def async_set_temperature(self, **kwargs) -> None:
         """
@@ -157,15 +156,25 @@ class EcodanHeatPumpThermostatEntity(EcodanHeatPumpEntity, ClimateEntity):
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:
         """Set new target hvac mode."""
         LOGGER.debug(f"Setting HVAC mode to '{hvac_mode}'...")
+        coordinator: Coordinator = self.coordinator
         if hvac_mode == HVACMode.OFF:
-            await self.coordinator.client.async_switch_off_heat_pump()
+            await coordinator.async_toggle_heat_pump_power(power=False)
         elif hvac_mode == HVACMode.HEAT:
             LOGGER.debug("Setting HVAC mode to 'heat'...")
+            await coordinator.async_toggle_heat_pump_power(power=True)
+            # await coordinator.async_set_thermostat_mode(ThermostatMode.FLOW_TEMPERATURE)
         elif hvac_mode == HVACMode.AUTO:
             LOGGER.debug("Setting HVAC mode to 'auto'...")
+            await coordinator.async_toggle_heat_pump_power(power=True)
+            # await coordinator.async_set_thermostat_mode(ThermostatMode.CURVE_TEMPERATURE)
         return
 
     async def async_set_preset_mode(self, preset_mode):
         """Set new target preset mode."""
-        LOGGER.debug("Setting preset mode...")
+        LOGGER.debug(f"Setting preset mode to '{preset_mode}'...")
+        client: ApiClient = self.coordinator.client
+        # match preset_mode:
+        #     case PRESET_NONE:
+        #         #
+
         return

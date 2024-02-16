@@ -9,7 +9,7 @@ from homeassistant.components.binary_sensor import (
 )
 
 from .const import DOMAIN
-from .coordinator import EcodanHeatPumpDataUpdateCoordinator
+from .coordinator import Coordinator
 from .entity import EcodanHeatPumpEntity
 
 ENTITY_DESCRIPTIONS = (
@@ -38,7 +38,7 @@ class IntegrationBlueprintBinarySensor(EcodanHeatPumpEntity, BinarySensorEntity)
 
     def __init__(
         self,
-        coordinator: EcodanHeatPumpDataUpdateCoordinator,
+        coordinator: Coordinator,
         entity_description: BinarySensorEntityDescription,
     ) -> None:
         """Initialize the binary_sensor class."""

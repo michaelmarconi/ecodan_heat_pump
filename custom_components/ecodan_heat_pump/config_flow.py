@@ -12,7 +12,14 @@ from homeassistant.helpers.selector import (
 )
 from homeassistant.helpers.aiohttp_client import async_create_clientsession
 
-from .const import (
+from custom_components.ecodan_heat_pump.api import (
+    ApiClient,
+    ApiClientAuthenticationException,
+    ApiClientCommunicationException,
+    ApiClientException,
+)
+from custom_components.ecodan_heat_pump.models import Credentials, CredentialsId
+from custom_components.ecodan_heat_pump.const import (
     DOMAIN,
     LOGGER,
     PASSWORD_1,
@@ -37,22 +44,21 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
         LOGGER.debug("Setting up API credentials...")
         _errors = {}
         self._entry_data = user_input if user_input != None else {}
-        # TODO: fixme!
-        # if user_input is not None:
-        #     try:
-        #         await self._test_credentials(user_input)
-        #     except MELCloudApiClientAuthenticationError as exception:
-        #         _errors["base"] = exception.credentials
-        #     except MELCLoudApiClientCommunicationError as exception:
-        #         LOGGER.error(exception)
-        #         _errors["base"] = "connection"
-        #     except MELCloudApiClientError as exception:
-        #         _errors["base"] = "unknown"
-        #     else:
-        #         return self.async_create_entry(
-        #             title="Ecodan Heat Pump",
-        #             data=user_input,
-        #         )
+        if user_input is not None:
+            try:
+                await self._test_credentials(user_input)
+            except ApiClientAuthenticationException as exception:
+                _errors["base"] = "auth"
+            except ApiClientCommunicationException as exception:
+                LOGGER.error(exception)
+                _errors["base"] = "connection"
+            except ApiClientException as exception:
+                _errors["base"] = "unknown"
+            else:
+                return self.async_create_entry(
+                    title="Ecodan Heat Pump",
+                    data=user_input,
+                )
 
         return self.async_show_form(
             step_id="user",
@@ -115,25 +121,26 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
     ) -> None:
         """Validate credentials."""
         LOGGER.debug("Validating API credentials...")
-        # TODO: fixme
-        # client_1 = MELCloudApiClient(
-        #     credentials=CredentialsId.CREDENTIALS_1,
-        #     username_1=user_input[USERNAME_1],
-        #     password_1=user_input[PASSWORD_1],
-        #     session=async_create_clientsession(self.hass),
-        # )
-        # await client_1.async_get_data()
-        # client_2 = MELCloudApiClient(
-        #     credentials=CredentialsId.CREDENTIALS_2,
-        #     username_1=user_input[USERNAME_2],
-        #     password_1=user_input[PASSWORD_2],
-        #     session=async_create_clientsession(self.hass),
-        # )
-        # await client_2.async_get_data()
-        # client_3 = MELCloudApiClient(
-        #     credentials=CredentialsId.CREDENTIALS_3,
-        #     username_1=user_input[USERNAME_3],
-        #     password_1=user_input[PASSWORD_3],
-        #     session=async_create_clientsession(self.hass),
-        # )
-        # await client_3.async_get_data()
+        client = ApiClient(
+            [
+                Credentials(
+                    CredentialsId.CREDENTIALS_1,
+                    user_input[USERNAME_1],
+                    user_input[PASSWORD_1],
+                ),
+                Credentials(
+                    CredentialsId.CREDENTIALS_2,
+                    user_input[USERNAME_2],
+                    user_input[PASSWORD_2],
+                ),
+                Credentials(
+                    CredentialsId.CREDENTIALS_2,
+                    user_input[USERNAME_2],
+                    user_input[PASSWORD_2],
+                ),
+            ],
+            async_create_clientsession(self.hass),
+        )
+        await client.async_get_data()  # Exercise credentials 1
+        await client.async_get_data()  # Exercise credentials 2
+        await client.async_get_data()  # Exercise credentials 3

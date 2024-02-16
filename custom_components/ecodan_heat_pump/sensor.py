@@ -5,7 +5,7 @@ from __future__ import annotations
 from homeassistant.components.sensor import SensorEntity, SensorEntityDescription
 
 from .const import DOMAIN
-from .coordinator import EcodanHeatPumpDataUpdateCoordinator
+from .coordinator import Coordinator
 from .entity import EcodanHeatPumpEntity
 
 ENTITY_DESCRIPTIONS = (
@@ -34,7 +34,7 @@ class IntegrationBlueprintSensor(EcodanHeatPumpEntity, SensorEntity):
 
     def __init__(
         self,
-        coordinator: EcodanHeatPumpDataUpdateCoordinator,
+        coordinator: Coordinator,
         entity_description: SensorEntityDescription,
     ) -> None:
         """Initialize the sensor class."""

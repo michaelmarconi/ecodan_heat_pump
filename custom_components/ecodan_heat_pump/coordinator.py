@@ -12,17 +12,18 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.exceptions import ConfigEntryAuthFailed
 
-from .api import (
-    ApiClient,
-    ApiClientAuthenticationError,
-    ApiClientError,
+from custom_components.ecodan_heat_pump.api import ApiClient
+from custom_components.ecodan_heat_pump.errors import (
+    ApiClientAuthenticationException,
+    ApiClientException,
 )
-from .const import DOMAIN, LOGGER
+from custom_components.ecodan_heat_pump.const import DOMAIN, LOGGER
+from custom_components.ecodan_heat_pump.models import HeatPumpState
 
 
 # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
-class EcodanHeatPumpDataUpdateCoordinator(DataUpdateCoordinator):
-    """Class to manage fetching data from the API."""
+class Coordinator(DataUpdateCoordinator):
+    """Data coordinator using a data store to limit impact on API"""
 
     config_entry: ConfigEntry
 
@@ -43,11 +44,26 @@ class EcodanHeatPumpDataUpdateCoordinator(DataUpdateCoordinator):
         )
 
     async def _async_update_data(self):
-        """Update data via library."""
-        LOGGER.debug("Updating coordinator state...")
+        """Refresh the data in the coordinator using the underlying API client"""
         try:
             return await self.client.async_get_data()
-        except ApiClientAuthenticationError as exception:
+        except ApiClientAuthenticationException as exception:
             raise ConfigEntryAuthFailed(exception) from exception
-        except ApiClientError as exception:
+        except ApiClientException as exception:
             raise UpdateFailed(exception) from exception
+
+    async def async_toggle_heat_pump_power(self, power: bool):
+        """Toggle the heat pump power on or off"""
+
+        # Get the heat pump state from the coordinator
+        heat_pump_state: HeatPumpState = self.data
+
+        # Toggle the heat pump power using the API
+        has_power = await self.client.async_toggle_heat_pump_power(
+            deviceId=heat_pump_state.device_id,
+            power=power,
+        )
+
+        # Update the coordinator data
+        heat_pump_state.has_power = has_power
+        self.async_set_updated_data(heat_pump_state)

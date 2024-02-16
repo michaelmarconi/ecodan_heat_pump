@@ -11,15 +11,15 @@ class CredentialsId(Enum):
     CREDENTIALS_3 = "credentials_3"
 
 
-class TargetTemperatureType(Enum):
-    ROOM_TEMPERATURE = "room_temperature"
-    FLOW_TEMPERATURE = "flow_temperature"
-    CURVE_TEMPERATURE = "curve_temperature"
+class ThermostatMode(Enum):
+    ROOM_TEMPERATURE = "heat_thermostat"
+    FLOW_TEMPERATURE = "heat_flow"
+    CURVE_TEMPERATURE = "curve"
 
 
 class HeatingMode(Enum):
     AUTO = "auto"
-    HEAT_WATER = "heat_water"
+    HEAT_WATER = "force_hot_water"
 
 
 class HeatingStatus(Enum):
@@ -51,7 +51,7 @@ class HeatPumpState:
     is_forced_to_heat_water: bool
     heating_mode: HeatingMode
     heating_status: HeatingStatus
-    target_temperature_type: TargetTemperatureType
+    thermostat_mode: ThermostatMode
     target_flow_temperature: float
     flow_temperature: float
     return_temperature: float
