@@ -69,6 +69,8 @@ class EcodanHeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
         self._attr_min_temp = MIN_FLOW_TEMP
         self._attr_max_temp = MAX_FLOW_TEMP
         self._attr_temperature_unit = TEMP_CELSIUS
+        self._attr_precision = 0.5
+        self._attr_target_temperature_step = 1
         self._attr_supported_features = (
             ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE
         )
@@ -137,9 +139,12 @@ class EcodanHeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
 
     async def async_set_temperature(self, **kwargs) -> None:
         """
-        Set new target temperature.
+        Set new target flow temperature.
         """
-        LOGGER.debug(kwargs)
+        flow_temperature = kwargs["temperature"]
+        LOGGER.debug(f"Setting flow temperature to '{flow_temperature}'...")
+        coordinator: Coordinator = self.coordinator
+        await coordinator.async_set_flow_temperature(flow_temperature)
         return
 
     async def async_set_hvac_mode(self, hvac_mode: str) -> None:

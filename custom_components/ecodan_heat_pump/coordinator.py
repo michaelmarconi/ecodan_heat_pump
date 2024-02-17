@@ -120,3 +120,26 @@ class Coordinator(DataUpdateCoordinator):
         await self.async_request_refresh()
 
         return
+
+    async def async_set_flow_temperature(self, temperature: float):
+        """Set the flow temperature for heating"""
+
+        # Get the heat pump state from the coordinator
+        heat_pump_state: HeatPumpState = self.data
+
+        # Set the heat pump operation mode using the API
+        target_flow_temperature = await self.client.async_set_flow_temperature(
+            deviceId=heat_pump_state.device_id,
+            temperature=temperature,
+        )
+
+        # Update the coordinator data
+        heat_pump_state.target_flow_temperature = target_flow_temperature
+        LOGGER.debug(heat_pump_state)  # TODO: nuke
+        self.async_set_updated_data(heat_pump_state)
+
+        # Request a state update
+        await asyncio.sleep(COORDINATOR_REFRESH_DELAY)
+        await self.async_request_refresh()
+
+        return

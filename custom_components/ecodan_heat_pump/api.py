@@ -138,6 +138,34 @@ class ApiClient:
         else:
             return None
 
+    async def async_set_flow_temperature(
+        self, deviceId: str, temperature: float
+    ) -> float:
+        """Set the flow temperature for heating"""
+
+        LOGGER.debug(f"Setting flow temperature to '{temperature}'...")
+
+        # Get the next set of credentials to use
+        credentials = await self._async_get_next_credentials()
+
+        # Configure the request data
+        data = {
+            "EffectiveFlags": 0x1000004000020,
+            "SetHeatFlowTemperatureZone1": temperature,
+            "DeviceID": deviceId,
+        }
+
+        # Set state using the API
+        response = await self._async_api_post(SETTINGS_URL, credentials, data)
+
+        # Extract the updated power attribute from the response
+        flow_temperature: float = response["SetHeatFlowTemperatureZone1"]
+
+        # TODO: nuke
+        LOGGER.debug(f"Set flow temp to: {flow_temperature}")
+
+        return flow_temperature
+
     async def _async_get_next_credentials(self) -> Credentials:
         """Get the next set of credentials to use in the series"""
         next_credentials: Credentials
