@@ -84,13 +84,13 @@ class Coordinator(DataUpdateCoordinator):
         heat_pump_state: HeatPumpState = self.data
 
         # Toggle the heat pump power using the API
-        heating_mode = await self.client.async_toggle_water_heating(
+        is_forced_to_heat_water = await self.client.async_toggle_water_heating(
             deviceId=heat_pump_state.device_id,
             heat_water=heat_water,
         )
 
         # Update the coordinator data
-        heat_pump_state.heating_mode = heating_mode
+        heat_pump_state.is_forced_to_heat_water = is_forced_to_heat_water
         self.async_set_updated_data(heat_pump_state)
 
         # Request a state update
