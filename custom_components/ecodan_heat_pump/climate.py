@@ -37,17 +37,17 @@ from custom_components.ecodan_heat_pump.entity import EcodanHeatPumpEntity
 ENTITY_DESCRIPTIONS = (
     ClimateEntityDescription(
         key=DOMAIN,
-        name="Heat pump climate control",
+        name="Ecodan Heat Pump",
         icon="mdi:heat-pump-outline",
     ),
 )
 
 
-async def async_setup_entry(hass, entry, async_add_devices):
+async def async_setup_entry(hass, entry, async_add_entities):
     """Set up the climate platform."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_devices(
-        EcodanHeatPumpClimateEntity(
+    async_add_entities(
+        HeatPumpClimateEntity(
             coordinator=coordinator,
             entity_description=entity_description,
         )
@@ -55,7 +55,7 @@ async def async_setup_entry(hass, entry, async_add_devices):
     )
 
 
-class EcodanHeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
+class HeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
     """Ecodan Heat Pump climate class."""
 
     def __init__(
