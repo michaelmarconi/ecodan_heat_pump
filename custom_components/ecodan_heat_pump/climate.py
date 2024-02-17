@@ -114,12 +114,10 @@ class EcodanHeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
     def preset_mode(self) -> str:
         """Return current hvac operation mode."""
         heat_pump_state: HeatPumpState = self.coordinator.data
-        if heat_pump_state.heating_mode == HeatingMode.AUTO:
+        if heat_pump_state.is_forced_to_heat_water == False:
             return PRESET_NONE
-        elif heat_pump_state.heating_mode == HeatingMode.HEAT_WATER:
+        elif heat_pump_state.is_forced_to_heat_water == True:
             return PRESET_BOOST
-        elif heat_pump_state.heating_mode == None:
-            return PRESET_NONE
         else:
             raise UnrecognisedPresetModeException(
                 f"The preset mode '{heat_pump_state.heating_mode}' is not recognised!"
@@ -165,7 +163,7 @@ class EcodanHeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
         LOGGER.debug(f"Setting preset mode to '{preset_mode}'...")
         coordinator: Coordinator = self.coordinator
         if preset_mode == PRESET_NONE:
-            await coordinator.async_set_heating_mode(HeatingMode.AUTO)
+            await coordinator.async_toggle_water_heating(False)
         elif preset_mode == PRESET_BOOST:
-            await coordinator.async_set_heating_mode(HeatingMode.HEAT_WATER)
+            await coordinator.async_toggle_water_heating(True)
         return

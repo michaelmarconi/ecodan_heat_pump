@@ -16,7 +16,7 @@ MAX_FLOW_TEMP = 60
 COORDINATOR_UPDATE_INTERVAL = timedelta(seconds=(5 * 60) / 3)
 
 # A 10s delay before requesting a refresh to allow the heat pump to react
-COORDINATOR_REFRESH_DELAY = 10
+COORDINATOR_REFRESH_DELAY = 5
 
 USERNAME_1 = "username_1"
 PASSWORD_1 = "password_1"

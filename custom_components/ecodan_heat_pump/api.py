@@ -78,6 +78,29 @@ class ApiClient:
 
         return has_power
 
+    async def async_toggle_water_heating(self, deviceId: str, heat_water: bool) -> bool:
+        """Toggle hot water heating on/off"""
+
+        LOGGER.debug(f"Toggling water heating to '{heat_water}'...")
+
+        # Get the next set of credentials to use
+        credentials = await self._async_get_next_credentials()
+
+        # Configure the request data
+        data = {
+            "EffectiveFlags": 0x10000,
+            "ForcedHotWaterMode": heat_water,
+            "DeviceID": deviceId,
+        }
+
+        # Set state using the API
+        response = await self._async_api_post(SETTINGS_URL, credentials, data)
+
+        # Extract the updated power attribute from the response
+        forced_hot_water_mode: bool = response["ForcedHotWaterMode"]
+
+        return forced_hot_water_mode
+
     # TODO: fixme
     # async def async_set_thermostat_mode(self, mode: ThermostatMode) -> HeatPumpState:
     #     """Set the thermostat mode (room/flow/curve)"""
@@ -115,38 +138,6 @@ class ApiClient:
     #     heat_pump_state = self._map_response_to_heat_pump_state(response)
 
     #     return heat_pump_state
-
-    async def async_set_heating_mode(
-        self, deviceId: str, mode: HeatingMode
-    ) -> HeatingMode:
-        """Set the heating mode (auto/hot water)"""
-
-        LOGGER.debug(f"Setting the heating mode to '{mode}'...")
-
-        # Get the next set of credentials to use
-        credentials = await self._async_get_next_credentials()
-
-        # Configure the request data
-        data = {
-            "EffectiveFlags": 0x10000,
-            "ForcedHotWaterMode": (
-                True
-                if mode == HeatingMode.HEAT_WATER
-                else False if mode == HeatingMode.AUTO else False
-            ),
-            "DeviceID": deviceId,
-        }
-
-        # Set state using the API
-        response = await self._async_api_post(SETTINGS_URL, credentials, data)
-
-        # Extract the updated power attribute from the response
-        forced_hot_water_mode: bool = response["ForcedHotWaterMode"]
-
-        if forced_hot_water_mode == True:
-            return HeatingMode.HEAT_WATER
-        elif forced_hot_water_mode == False:
-            return HeatingMode.AUTO
 
     async def _async_get_next_credentials(self) -> Credentials:
         """Get the next set of credentials to use in the series"""

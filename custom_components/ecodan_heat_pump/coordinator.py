@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import time
 import asyncio
 
 from homeassistant.config_entries import ConfigEntry
@@ -77,21 +76,16 @@ class Coordinator(DataUpdateCoordinator):
 
         return
 
-    # TODO: nuke?
-    async def say_after(delay, what):
-        await asyncio.sleep(delay)
-        print(what)
-
-    async def async_set_heating_mode(self, mode: HeatingMode):
-        """Set the heating mode (auto/hot water)"""
+    async def async_toggle_water_heating(self, heat_water: bool):
+        """Toggle hot water heating on/off"""
 
         # Get the heat pump state from the coordinator
         heat_pump_state: HeatPumpState = self.data
 
         # Toggle the heat pump power using the API
-        heating_mode = await self.client.async_set_heating_mode(
+        heating_mode = await self.client.async_toggle_water_heating(
             deviceId=heat_pump_state.device_id,
-            mode=mode,
+            heat_water=heat_water,
         )
 
         # Update the coordinator data
