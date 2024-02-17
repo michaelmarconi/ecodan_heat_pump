@@ -72,6 +72,7 @@ class Coordinator(DataUpdateCoordinator):
         self.async_set_updated_data(heat_pump_state)
 
         # Request a state update
+        await asyncio.sleep(COORDINATOR_REFRESH_DELAY)
         await self.async_request_refresh()
 
         return
@@ -94,7 +95,28 @@ class Coordinator(DataUpdateCoordinator):
 
         # Request a state update
         await asyncio.sleep(COORDINATOR_REFRESH_DELAY)
-        LOGGER.debug("Requesting a refresh...")
+        await self.async_request_refresh()
+
+        return
+
+    async def async_set_heating_mode(self, heating_mode: HeatingMode):
+        """Set the heating mode (flow/curve)"""
+
+        # Get the heat pump state from the coordinator
+        heat_pump_state: HeatPumpState = self.data
+
+        # Set the heat pump operation mode using the API
+        heating_mode = await self.client.async_set_heating_mode(
+            deviceId=heat_pump_state.device_id,
+            heating_mode=heating_mode,
+        )
+
+        # Update the coordinator data
+        heat_pump_state.heating_mode = heating_mode
+        self.async_set_updated_data(heat_pump_state)
+
+        # Request a state update
+        await asyncio.sleep(COORDINATOR_REFRESH_DELAY)
         await self.async_request_refresh()
 
         return

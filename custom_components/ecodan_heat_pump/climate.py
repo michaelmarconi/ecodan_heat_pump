@@ -21,7 +21,7 @@ from custom_components.ecodan_heat_pump.models import (
     HeatPumpState,
     HeatingMode,
     HeatingStatus,
-    ThermostatMode,
+    HeatingMode,
 )
 from custom_components.ecodan_heat_pump.const import (
     DOMAIN,
@@ -76,16 +76,16 @@ class EcodanHeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
     @property
     def hvac_modes(self) -> list[str]:
         """Return the list of available hvac operation modes."""
-        return [HVACMode.OFF, HVACMode.HEAT]
+        return [HVACMode.OFF, HVACMode.HEAT, HVACMode.AUTO]
 
     @property
     def hvac_mode(self) -> str:
         """Return current hvac operation mode."""
         heat_pump_state: HeatPumpState = self.coordinator.data
         if heat_pump_state.has_power:
-            if heat_pump_state.thermostat_mode == ThermostatMode.FLOW_TEMPERATURE:
+            if heat_pump_state.heating_mode == HeatingMode.FLOW_TEMPERATURE:
                 return HVACMode.HEAT
-            elif heat_pump_state.thermostat_mode == ThermostatMode.CURVE_TEMPERATURE:
+            elif heat_pump_state.heating_mode == HeatingMode.CURVE_TEMPERATURE:
                 return HVACMode.AUTO
         else:
             return HVACMode.OFF
@@ -146,16 +146,19 @@ class EcodanHeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
         """Set new target hvac mode."""
         LOGGER.debug(f"Setting HVAC mode to '{hvac_mode}'...")
         coordinator: Coordinator = self.coordinator
+        heat_pump_state: HeatPumpState = self.coordinator.data
         if hvac_mode == HVACMode.OFF:
             await coordinator.async_toggle_heat_pump_power(power=False)
         elif hvac_mode == HVACMode.HEAT:
             LOGGER.debug("Setting HVAC mode to 'heat'...")
-            await coordinator.async_toggle_heat_pump_power(power=True)
-            # await coordinator.async_set_thermostat_mode(ThermostatMode.FLOW_TEMPERATURE)
+            if heat_pump_state.has_power == False:
+                await coordinator.async_toggle_heat_pump_power(power=True)
+            await coordinator.async_set_heating_mode(HeatingMode.FLOW_TEMPERATURE)
         elif hvac_mode == HVACMode.AUTO:
             LOGGER.debug("Setting HVAC mode to 'auto'...")
-            await coordinator.async_toggle_heat_pump_power(power=True)
-            # await coordinator.async_set_thermostat_mode(ThermostatMode.CURVE_TEMPERATURE)
+            if heat_pump_state.has_power == False:
+                await coordinator.async_toggle_heat_pump_power(power=True)
+            await coordinator.async_set_heating_mode(HeatingMode.CURVE_TEMPERATURE)
         return
 
     async def async_set_preset_mode(self, preset_mode):

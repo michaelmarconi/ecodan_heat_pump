@@ -20,7 +20,7 @@ from custom_components.ecodan_heat_pump.models import (
     HeatPumpState,
     HeatingMode,
     HeatingStatus,
-    ThermostatMode,
+    HeatingMode,
 )
 from custom_components.ecodan_heat_pump.const import LOGGER
 
@@ -55,8 +55,6 @@ class ApiClient:
 
         # Update the stored heat pump state from the API request
         heat_pump_state = self._map_response_to_heat_pump_state(response)
-
-        LOGGER.debug(heat_pump_state)
 
         return heat_pump_state
 
@@ -101,43 +99,50 @@ class ApiClient:
 
         return forced_hot_water_mode
 
-    # TODO: fixme
-    # async def async_set_thermostat_mode(self, mode: ThermostatMode) -> HeatPumpState:
-    #     """Set the thermostat mode (room/flow/curve)"""
+    async def async_set_heating_mode(
+        self, deviceId: str, heating_mode: HeatingMode | None
+    ) -> HeatingMode:
+        """Set the heating mode (flow/curve)"""
 
-    #     LOGGER.debug(f"Setting the thermostat mode to '{mode}'...")
+        LOGGER.debug(f"Setting heating mode to'{heating_mode}'...")
 
-    #     # Make sure we have heat pump state
-    #     if self._heat_pump_state == None:
-    #         await self.async_get_data()
+        OPERATION_MODE_FLOW = 1
+        OPERATION_MODE_CURVE = 2
 
-    #     # Get the next set of credentials to use
-    #     credentials = await self._async_get_next_credentials()
+        # Get the next set of credentials to use
+        credentials = await self._async_get_next_credentials()
 
-    #     data = {
-    #         "EffectiveFlags": 67108872,
-    #         "OperationModeZone1": None,  # This switches the mode
-    #         "DeviceID": 55125051,
-    #     }
-    #     match mode:
-    #         case ThermostatMode.ROOM_TEMPERATURE:
-    #             data["OperationModeZone1"] = 0
-    #         case ThermostatMode.FLOW_TEMPERATURE:
-    #             data["OperationModeZone1"] = 1
-    #         case ThermostatMode.CURVE_TEMPERATURE:
-    #             data["OperationModeZone1"] = 2
+        # Configure the request data
+        data = {
+            "EffectiveFlags": None,
+            "OperationModeZone1": None,
+            "DeviceID": deviceId,
+        }
+        if heating_mode == HeatingMode.FLOW_TEMPERATURE:
+            data["EffectiveFlags"] = 67108872
+            data["OperationModeZone1"] = OPERATION_MODE_FLOW
+        elif heating_mode == HeatingMode.CURVE_TEMPERATURE:
+            data["EffectiveFlags"] = 281475043819560
+            data["OperationModeZone1"] = OPERATION_MODE_CURVE
 
-    #     # Set state using the API
-    #     response = await self._async_api_post(
-    #         SETTINGS_URL,
-    #         credentials,
-    #         data,
-    #     )
+        # TODO: nuke
+        LOGGER.debug(data)
 
-    #     # Map heat pump state to API response
-    #     heat_pump_state = self._map_response_to_heat_pump_state(response)
+        # Set state using the API
+        response = await self._async_api_post(SETTINGS_URL, credentials, data)
 
-    #     return heat_pump_state
+        # TODO: nuke
+        LOGGER.debug(response)
+
+        # Extract the updated power attribute from the response
+        operation_mode: int = response["OperationModeZone1"]
+
+        if operation_mode == OPERATION_MODE_CURVE:
+            return HeatingMode.CURVE_TEMPERATURE
+        elif operation_mode == OPERATION_MODE_FLOW:
+            return HeatingMode.FLOW_TEMPERATURE
+        else:
+            return None
 
     async def _async_get_next_credentials(self) -> Credentials:
         """Get the next set of credentials to use in the series"""
@@ -217,7 +222,6 @@ class ApiClient:
                 is_forced_to_heat_water=device["ForcedHotWaterMode"],
                 heating_mode=self._determine_heating_mode(device),
                 heating_status=self._determine_heating_status(device),
-                thermostat_mode=self._determine_thermostat_mode(device),
                 target_flow_temperature=device["SetHeatFlowTemperatureZone1"],
                 flow_temperature=device["FlowTemperature"],
                 return_temperature=device["ReturnTemperature"],
@@ -290,32 +294,19 @@ class ApiClient:
             2,
         )
 
-    def _determine_heating_mode(self, device) -> HeatingMode:
-        return (
-            HeatingMode.HEAT_WATER
-            if device["OperationMode"] == 1
-            else (HeatingMode.AUTO if device["OperationMode"] == 2 else None)
-        )
-
     def _determine_heating_status(self, device) -> HeatingStatus:
         return (
             HeatingStatus.IDLE if device["IdleZone1"] == True else HeatingStatus.HEATING
         )
 
-    def _determine_thermostat_mode(self, device) -> ThermostatMode:
-        return (
-            ThermostatMode.ROOM_TEMPERATURE
-            if device["OperationModeZone1"] == 0
-            else (
-                ThermostatMode.FLOW_TEMPERATURE
-                if device["OperationModeZone1"] == 1
-                else (
-                    ThermostatMode.CURVE_TEMPERATURE
-                    if device["OperationModeZone1"] == 2
-                    else None
-                )
-            )
-        )
+    def _determine_heating_mode(self, device) -> HeatingMode | None:
+        operation_mode = device["OperationModeZone1"]
+        if operation_mode == 1:
+            return HeatingMode.FLOW_TEMPERATURE
+        elif operation_mode == 2:
+            return HeatingMode.CURVE_TEMPERATURE
+        else:
+            return None
 
     def _determine_current_coefficient_of_performance(self, device) -> float:
         return (
