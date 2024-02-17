@@ -54,9 +54,11 @@ class ApiClient:
         response = await self._async_api_get(LIST_DEVICES_URL, credentials)
 
         # Update the stored heat pump state from the API request
-        self._update_heat_pump_state_from_api_response(response)
+        heat_pump_state = self._map_response_to_heat_pump_state(response)
 
-        return self._heat_pump_state
+        LOGGER.debug(heat_pump_state)
+
+        return heat_pump_state
 
     async def async_toggle_heat_pump_power(self, deviceId: str, power: bool) -> bool:
         """Toggle the heat pump power on or off"""
@@ -76,42 +78,75 @@ class ApiClient:
 
         return has_power
 
-    async def async_set_thermostat_mode(self, mode: ThermostatMode) -> HeatPumpState:
-        """Set the thermostat mode (room/flow/curve)"""
+    # TODO: fixme
+    # async def async_set_thermostat_mode(self, mode: ThermostatMode) -> HeatPumpState:
+    #     """Set the thermostat mode (room/flow/curve)"""
 
-        LOGGER.debug(f"Setting the thermostat mode to '{mode}'...")
+    #     LOGGER.debug(f"Setting the thermostat mode to '{mode}'...")
 
-        # Make sure we have heat pump state
-        if self._heat_pump_state == None:
-            await self.async_get_data()
+    #     # Make sure we have heat pump state
+    #     if self._heat_pump_state == None:
+    #         await self.async_get_data()
+
+    #     # Get the next set of credentials to use
+    #     credentials = await self._async_get_next_credentials()
+
+    #     data = {
+    #         "EffectiveFlags": 67108872,
+    #         "OperationModeZone1": None,  # This switches the mode
+    #         "DeviceID": 55125051,
+    #     }
+    #     match mode:
+    #         case ThermostatMode.ROOM_TEMPERATURE:
+    #             data["OperationModeZone1"] = 0
+    #         case ThermostatMode.FLOW_TEMPERATURE:
+    #             data["OperationModeZone1"] = 1
+    #         case ThermostatMode.CURVE_TEMPERATURE:
+    #             data["OperationModeZone1"] = 2
+
+    #     # Set state using the API
+    #     response = await self._async_api_post(
+    #         SETTINGS_URL,
+    #         credentials,
+    #         data,
+    #     )
+
+    #     # Map heat pump state to API response
+    #     heat_pump_state = self._map_response_to_heat_pump_state(response)
+
+    #     return heat_pump_state
+
+    async def async_set_heating_mode(
+        self, deviceId: str, mode: HeatingMode
+    ) -> HeatingMode:
+        """Set the heating mode (auto/hot water)"""
+
+        LOGGER.debug(f"Setting the heating mode to '{mode}'...")
 
         # Get the next set of credentials to use
         credentials = await self._async_get_next_credentials()
 
+        # Configure the request data
         data = {
-            "EffectiveFlags": 67108872,
-            "OperationModeZone1": None,  # This switches the mode
-            "DeviceID": 55125051,
+            "EffectiveFlags": 0x10000,
+            "ForcedHotWaterMode": (
+                True
+                if mode == HeatingMode.HEAT_WATER
+                else False if mode == HeatingMode.AUTO else False
+            ),
+            "DeviceID": deviceId,
         }
-        match mode:
-            case ThermostatMode.ROOM_TEMPERATURE:
-                data["OperationModeZone1"] = 0
-            case ThermostatMode.FLOW_TEMPERATURE:
-                data["OperationModeZone1"] = 1
-            case ThermostatMode.CURVE_TEMPERATURE:
-                data["OperationModeZone1"] = 2
 
         # Set state using the API
-        response = await self._async_api_post(
-            SETTINGS_URL,
-            credentials,
-            data,
-        )
+        response = await self._async_api_post(SETTINGS_URL, credentials, data)
 
-        # Map heat pump state to API response
-        heat_pump_state = self._update_heat_pump_state_from_api_response(response)
+        # Extract the updated power attribute from the response
+        forced_hot_water_mode: bool = response["ForcedHotWaterMode"]
 
-        return heat_pump_state
+        if forced_hot_water_mode == True:
+            return HeatingMode.HEAT_WATER
+        elif forced_hot_water_mode == False:
+            return HeatingMode.AUTO
 
     async def _async_get_next_credentials(self) -> Credentials:
         """Get the next set of credentials to use in the series"""
@@ -170,11 +205,11 @@ class ApiClient:
             ) from exception
         return
 
-    def _update_heat_pump_state_from_api_response(self, data: json):
+    def _map_response_to_heat_pump_state(self, response: json) -> HeatPumpState:
         """Map the response from the API to the heat pump state model"""
 
         try:
-            heat_pump_data = data[0]
+            heat_pump_data = response[0]
             device = heat_pump_data["Structure"]["Devices"][0]["Device"]
             heat_pump_state = HeatPumpState(
                 device_id=device["DeviceID"],
@@ -222,8 +257,7 @@ class ApiClient:
                     device
                 ),
             )
-            self._heat_pump_state = heat_pump_state
-            return
+            return heat_pump_state
         except Exception as exception:
             LOGGER.exception(exception)
             raise ApiClientException(

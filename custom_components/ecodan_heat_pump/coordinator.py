@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from datetime import timedelta
+import time
+import asyncio
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
@@ -17,8 +18,13 @@ from custom_components.ecodan_heat_pump.errors import (
     ApiClientAuthenticationException,
     ApiClientException,
 )
-from custom_components.ecodan_heat_pump.const import DOMAIN, LOGGER
-from custom_components.ecodan_heat_pump.models import HeatPumpState
+from custom_components.ecodan_heat_pump.const import (
+    COORDINATOR_REFRESH_DELAY,
+    COORDINATOR_UPDATE_INTERVAL,
+    DOMAIN,
+    LOGGER,
+)
+from custom_components.ecodan_heat_pump.models import HeatPumpState, HeatingMode
 
 
 # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
@@ -38,9 +44,7 @@ class Coordinator(DataUpdateCoordinator):
             hass=hass,
             logger=LOGGER,
             name=DOMAIN,
-            update_interval=timedelta(
-                seconds=(5 * 60) / 3
-            ),  # 5 minute interval per credential = 100s
+            update_interval=COORDINATOR_UPDATE_INTERVAL,
         )
 
     async def _async_update_data(self):
@@ -67,3 +71,36 @@ class Coordinator(DataUpdateCoordinator):
         # Update the coordinator data
         heat_pump_state.has_power = has_power
         self.async_set_updated_data(heat_pump_state)
+
+        # Request a state update
+        await self.async_request_refresh()
+
+        return
+
+    # TODO: nuke?
+    async def say_after(delay, what):
+        await asyncio.sleep(delay)
+        print(what)
+
+    async def async_set_heating_mode(self, mode: HeatingMode):
+        """Set the heating mode (auto/hot water)"""
+
+        # Get the heat pump state from the coordinator
+        heat_pump_state: HeatPumpState = self.data
+
+        # Toggle the heat pump power using the API
+        heating_mode = await self.client.async_set_heating_mode(
+            deviceId=heat_pump_state.device_id,
+            mode=mode,
+        )
+
+        # Update the coordinator data
+        heat_pump_state.heating_mode = heating_mode
+        self.async_set_updated_data(heat_pump_state)
+
+        # Request a state update
+        await asyncio.sleep(COORDINATOR_REFRESH_DELAY)
+        LOGGER.debug("Requesting a refresh...")
+        await self.async_request_refresh()
+
+        return

@@ -23,7 +23,12 @@ from custom_components.ecodan_heat_pump.models import (
     HeatingStatus,
     ThermostatMode,
 )
-from custom_components.ecodan_heat_pump.const import DOMAIN, LOGGER
+from custom_components.ecodan_heat_pump.const import (
+    DOMAIN,
+    LOGGER,
+    MAX_FLOW_TEMP,
+    MIN_FLOW_TEMP,
+)
 from custom_components.ecodan_heat_pump.coordinator import (
     Coordinator,
 )
@@ -32,7 +37,7 @@ from custom_components.ecodan_heat_pump.entity import EcodanHeatPumpEntity
 ENTITY_DESCRIPTIONS = (
     ClimateEntityDescription(
         key=DOMAIN,
-        name="Ecodan Heat Pump Thermostat",
+        name="Heat pump climate control",
         icon="mdi:heat-pump-outline",
     ),
 )
@@ -61,6 +66,8 @@ class EcodanHeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
         """Initialize the climate class."""
         super().__init__(coordinator)
         self.entity_description = entity_description
+        self._attr_min_temp = MIN_FLOW_TEMP
+        self._attr_max_temp = MAX_FLOW_TEMP
         self._attr_temperature_unit = TEMP_CELSIUS
         self._attr_supported_features = (
             ClimateEntityFeature.TARGET_TEMPERATURE | ClimateEntityFeature.PRESET_MODE
@@ -74,7 +81,6 @@ class EcodanHeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
     @property
     def hvac_mode(self) -> str:
         """Return current hvac operation mode."""
-        LOGGER.debug("Getting HVAC mode...")
         heat_pump_state: HeatPumpState = self.coordinator.data
         if heat_pump_state.has_power:
             if heat_pump_state.thermostat_mode == ThermostatMode.FLOW_TEMPERATURE:
@@ -87,7 +93,6 @@ class EcodanHeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
     @property
     def hvac_action(self) -> str:
         """Return current hvac action."""
-        LOGGER.debug("Getting HVAC action...")
         heat_pump_state: HeatPumpState = self.coordinator.data
         if heat_pump_state.has_power:
             if heat_pump_state.heating_status == HeatingStatus.HEATING:
@@ -108,16 +113,12 @@ class EcodanHeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
     @property
     def preset_mode(self) -> str:
         """Return current hvac operation mode."""
-        LOGGER.debug("Getting preset mode...")
         heat_pump_state: HeatPumpState = self.coordinator.data
         if heat_pump_state.heating_mode == HeatingMode.AUTO:
-            LOGGER.debug("Preset mode is NONE")
             return PRESET_NONE
         elif heat_pump_state.heating_mode == HeatingMode.HEAT_WATER:
-            LOGGER.debug("Preset mode is HEAT WATER")
             return PRESET_BOOST
         elif heat_pump_state.heating_mode == None:
-            LOGGER.debug("Preset mode is NONE")
             return PRESET_NONE
         else:
             raise UnrecognisedPresetModeException(
@@ -135,16 +136,6 @@ class EcodanHeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
         """Return the temperature we try to reach."""
         heat_pump_state: HeatPumpState = self.coordinator.data
         return heat_pump_state.target_flow_temperature
-
-    async def async_turn_on(self):
-        """Turn heat pump on."""
-        # TODO: nuke function?
-        LOGGER.warn("Turning off?")
-
-    async def async_turn_off(self):
-        """Turn heat pump off."""
-        # TODO: nuke function?
-        LOGGER.warn("Turning off?")
 
     async def async_set_temperature(self, **kwargs) -> None:
         """
@@ -170,11 +161,11 @@ class EcodanHeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
         return
 
     async def async_set_preset_mode(self, preset_mode):
-        """Set new target preset mode."""
+        """Set the preset mode."""
         LOGGER.debug(f"Setting preset mode to '{preset_mode}'...")
-        client: ApiClient = self.coordinator.client
-        # match preset_mode:
-        #     case PRESET_NONE:
-        #         #
-
+        coordinator: Coordinator = self.coordinator
+        if preset_mode == PRESET_NONE:
+            await coordinator.async_set_heating_mode(HeatingMode.AUTO)
+        elif preset_mode == PRESET_BOOST:
+            await coordinator.async_set_heating_mode(HeatingMode.HEAT_WATER)
         return

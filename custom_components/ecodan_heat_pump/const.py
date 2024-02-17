@@ -1,12 +1,22 @@
 """Constants for ecodan_heat_pump."""
 
+from datetime import timedelta
 from logging import Logger, getLogger
 
 LOGGER: Logger = getLogger(__package__)
 
 NAME = "Ecodan Heat Pump"
 DOMAIN = "ecodan_heat_pump"
-VERSION = "0.0.0"
+VERSION = "0.1.0"
+
+MIN_FLOW_TEMP = 25
+MAX_FLOW_TEMP = 60
+
+# 5 minute interval per credential = 100s
+COORDINATOR_UPDATE_INTERVAL = timedelta(seconds=(5 * 60) / 3)
+
+# A 10s delay before requesting a refresh to allow the heat pump to react
+COORDINATOR_REFRESH_DELAY = 10
 
 USERNAME_1 = "username_1"
 PASSWORD_1 = "password_1"
