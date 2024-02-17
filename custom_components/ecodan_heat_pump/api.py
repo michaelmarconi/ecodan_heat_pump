@@ -125,14 +125,8 @@ class ApiClient:
             data["EffectiveFlags"] = 281475043819560
             data["OperationModeZone1"] = OPERATION_MODE_CURVE
 
-        # TODO: nuke
-        LOGGER.debug(data)
-
         # Set state using the API
         response = await self._async_api_post(SETTINGS_URL, credentials, data)
-
-        # TODO: nuke
-        LOGGER.debug(response)
 
         # Extract the updated power attribute from the response
         operation_mode: int = response["OperationModeZone1"]
