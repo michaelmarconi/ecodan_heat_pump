@@ -250,7 +250,6 @@ class ApiClient:
                 target_water_tank_temperature=device["SetTankWaterTemperature"],
                 water_tank_temperature=device["TankWaterTemperature"],
                 outdoor_temperature=device["OutdoorTemperature"],
-                demand_percentage=device["DemandPercentage"],
                 last_communication=parser.parse(device["LastTimeStamp"]),
                 rate_of_current_energy_consumption=device["CurrentEnergyConsumed"],
                 rate_of_current_energy_production=device["CurrentEnergyProduced"],

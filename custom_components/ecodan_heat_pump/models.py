@@ -51,7 +51,6 @@ class HeatPumpState:
     target_water_tank_temperature: float
     water_tank_temperature: float
     outdoor_temperature: float
-    demand_percentage: float
     last_communication: datetime
     rate_of_current_energy_consumption: float
     rate_of_current_energy_production: float
