@@ -8,7 +8,7 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorStateClass,
 )
-from homeassistant.const import UnitOfTemperature, UnitOfEnergy
+from homeassistant.const import UnitOfTemperature, UnitOfEnergy, UnitOfPower
 
 from custom_components.ecodan_heat_pump.const import DOMAIN
 from custom_components.ecodan_heat_pump.coordinator import Coordinator
@@ -26,7 +26,15 @@ async def async_setup_entry(hass, entry, async_add_entities):
             HeatPumpTargetWaterTankTempSensor(coordinator),
             HeatPumpWaterTankTempSensor(coordinator),
             HeatPumpOutdoorTempSensor(coordinator),
-            HeatPumpDailyEnergyReportSensor(coordinator),
+            HeatPumpLastCommunicationSensor(coordinator),
+            HeatPumpRateOfCurrentEnergyConsumptionSensor(coordinator),
+            HeatPumpRateOfCurrentEnergyProductionSensor(coordinator),
+            HeatPumpCurrentCoefficientOfPerformaceSensor(coordinator),
+            HeatPumpDailyEnergyReportDateSensor(coordinator),
+            HeatPumpDailyHeatingEnergyConsumedSensor(coordinator),
+            HeatPumpDailyHeatingEnergyProducedSensor(coordinator),
+            HeatPumpDailyHotWaterEnergyConsumedSensor(coordinator),
+            HeatPumpDailyHotWaterEnergyProducedSensor(coordinator),
             HeatPumpDailyTotalEnergyConsumedSensor(coordinator),
             HeatPumpDailyTotalEnergyProducedSensor(coordinator),
             HeatPumpDailyCoefficientOfPerformaceSensor(coordinator),
@@ -194,28 +202,94 @@ class HeatPumpOutdoorTempSensor(HeatPumpSensorEntity):
         )
 
 
-class HeatPumpDailyEnergyReportSensor(HeatPumpSensorEntity):
-    """Daily energy report date sensor"""
+class HeatPumpLastCommunicationSensor(HeatPumpSensorEntity):
+    """Timestamp of last communication with the heat pump via the API"""
 
     def __init__(
         self,
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_daily_energy_report_date",
+            unique_id="heat_pump_last_communication_timestamp",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump daily total energy report date",
-                icon="mdi:calendar-today",
+                name="Heat pump last communication",
+                icon="mdi:calendar-clock",
                 device_class=SensorDeviceClass.DATE,
-                suggested_display_precision=0,
             ),
-            value_function=lambda coordinator: coordinator.data.daily_energy_report_date,
+            value_function=lambda coordinator: coordinator.data.last_communication,
         )
 
 
-class HeatPumpDailyEnergyReportSensor(HeatPumpSensorEntity):
+class HeatPumpRateOfCurrentEnergyConsumptionSensor(HeatPumpSensorEntity):
+    """Rate of current energy consumption sensor"""
+
+    def __init__(
+        self,
+        coordinator: Coordinator,
+    ) -> None:
+        super().__init__(
+            unique_id="heat_pump_rate_of_current_energy_consumption",
+            coordinator=coordinator,
+            entity_description=SensorEntityDescription(
+                key=DOMAIN,
+                name="Heat pump rate of current energy consumption",
+                icon="mdi:lightning-bolt",
+                device_class=SensorDeviceClass.POWER,
+                state_class=SensorStateClass.MEASUREMENT,
+                native_unit_of_measurement=UnitOfPower.KILO_WATT,
+                suggested_display_precision=1,
+            ),
+            value_function=lambda coordinator: coordinator.data.rate_of_current_energy_consumption,
+        )
+
+
+class HeatPumpRateOfCurrentEnergyProductionSensor(HeatPumpSensorEntity):
+    """Rate of current energy production sensor"""
+
+    def __init__(
+        self,
+        coordinator: Coordinator,
+    ) -> None:
+        super().__init__(
+            unique_id="heat_pump_rate_of_current_energy_production",
+            coordinator=coordinator,
+            entity_description=SensorEntityDescription(
+                key=DOMAIN,
+                name="Heat pump rate of current energy production",
+                icon="mdi:lightning-bolt",
+                device_class=SensorDeviceClass.POWER,
+                state_class=SensorStateClass.MEASUREMENT,
+                native_unit_of_measurement=UnitOfPower.KILO_WATT,
+                suggested_display_precision=1,
+            ),
+            value_function=lambda coordinator: coordinator.data.rate_of_current_energy_production,
+        )
+
+
+class HeatPumpCurrentCoefficientOfPerformaceSensor(HeatPumpSensorEntity):
+    """Current coefficient of performace sensor"""
+
+    def __init__(
+        self,
+        coordinator: Coordinator,
+    ) -> None:
+        super().__init__(
+            unique_id="heat_pump_current_coefficient_of_performance",
+            coordinator=coordinator,
+            entity_description=SensorEntityDescription(
+                key=DOMAIN,
+                name="Heat pump current coefficient of performance (COP)",
+                icon="mdi:home-percent-outline",
+                state_class=SensorStateClass.MEASUREMENT,
+                suggested_display_precision=2,
+            ),
+            value_function=lambda coordinator: coordinator.data.current_coefficient_of_performance,
+        )
+
+
+class HeatPumpDailyEnergyReportDateSensor(HeatPumpSensorEntity):
     """Daily energy report date sensor"""
 
     def __init__(
@@ -300,4 +374,96 @@ class HeatPumpDailyCoefficientOfPerformaceSensor(HeatPumpSensorEntity):
                 suggested_display_precision=2,
             ),
             value_function=lambda coordinator: coordinator.data.daily_coefficient_of_performance,
+        )
+
+
+class HeatPumpDailyHeatingEnergyConsumedSensor(HeatPumpSensorEntity):
+    """Daily heating energy consumed sensor"""
+
+    def __init__(
+        self,
+        coordinator: Coordinator,
+    ) -> None:
+        super().__init__(
+            unique_id="heat_pump_daily_heating_energy_consumed",
+            coordinator=coordinator,
+            entity_description=SensorEntityDescription(
+                key=DOMAIN,
+                name="Heat pump daily heating energy consumed",
+                icon="mdi:lightning-bolt-outline",
+                device_class=SensorDeviceClass.ENERGY,
+                state_class=SensorStateClass.TOTAL_INCREASING,
+                native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                suggested_display_precision=1,
+            ),
+            value_function=lambda coordinator: coordinator.data.daily_heating_energy_consumed,
+        )
+
+
+class HeatPumpDailyHeatingEnergyProducedSensor(HeatPumpSensorEntity):
+    """Daily heating energy produced sensor"""
+
+    def __init__(
+        self,
+        coordinator: Coordinator,
+    ) -> None:
+        super().__init__(
+            unique_id="heat_pump_daily_heating_energy_produced",
+            coordinator=coordinator,
+            entity_description=SensorEntityDescription(
+                key=DOMAIN,
+                name="Heat pump daily heating energy produced",
+                icon="mdi:lightning-bolt-outline",
+                device_class=SensorDeviceClass.ENERGY,
+                state_class=SensorStateClass.TOTAL_INCREASING,
+                native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                suggested_display_precision=1,
+            ),
+            value_function=lambda coordinator: coordinator.data.daily_heating_energy_produced,
+        )
+
+
+class HeatPumpDailyHotWaterEnergyConsumedSensor(HeatPumpSensorEntity):
+    """Daily hot water energy consumed sensor"""
+
+    def __init__(
+        self,
+        coordinator: Coordinator,
+    ) -> None:
+        super().__init__(
+            unique_id="heat_pump_daily_hot_water_energy_consumed",
+            coordinator=coordinator,
+            entity_description=SensorEntityDescription(
+                key=DOMAIN,
+                name="Heat pump daily hot water energy consumed",
+                icon="mdi:lightning-bolt-outline",
+                device_class=SensorDeviceClass.ENERGY,
+                state_class=SensorStateClass.TOTAL_INCREASING,
+                native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                suggested_display_precision=1,
+            ),
+            value_function=lambda coordinator: coordinator.data.daily_hot_water_energy_consumed,
+        )
+
+
+class HeatPumpDailyHotWaterEnergyProducedSensor(HeatPumpSensorEntity):
+    """Daily hot water energy produced sensor"""
+
+    def __init__(
+        self,
+        coordinator: Coordinator,
+    ) -> None:
+        super().__init__(
+            unique_id="heat_pump_daily_hot_water_energy_produced",
+            coordinator=coordinator,
+            entity_description=SensorEntityDescription(
+                key=DOMAIN,
+                name="Heat pump daily hot water energy produced",
+                icon="mdi:lightning-bolt-outline",
+                device_class=SensorDeviceClass.ENERGY,
+                state_class=SensorStateClass.TOTAL_INCREASING,
+                native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                suggested_display_precision=1,
+            ),
+            value_function=lambda coordinator: coordinator.data.daily_hot_water_energy_produced,
         )

@@ -161,9 +161,6 @@ class ApiClient:
         # Extract the updated power attribute from the response
         flow_temperature: float = response["SetHeatFlowTemperatureZone1"]
 
-        # TODO: nuke
-        LOGGER.debug(f"Set flow temp to: {flow_temperature}")
-
         return flow_temperature
 
     async def _async_get_next_credentials(self) -> Credentials:
@@ -273,8 +270,6 @@ class ApiClient:
                     device
                 ),
             )
-            # TODO: nuke
-            LOGGER.debug(type(heat_pump_state.daily_energy_report_date))
             return heat_pump_state
         except Exception as exception:
             LOGGER.exception(exception)
@@ -325,9 +320,9 @@ class ApiClient:
 
     def _determine_current_coefficient_of_performance(self, device) -> float:
         return (
-            round(device["CurrentEnergyConsumed"] / device["CurrentEnergyProduced"], 2)
+            round(device["CurrentEnergyProduced"] / device["CurrentEnergyConsumed"], 2)
             if device["CurrentEnergyProduced"] > 0
-            else 0
+            else None
         )
 
     async def _async_api_post(

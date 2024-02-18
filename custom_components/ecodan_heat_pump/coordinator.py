@@ -135,7 +135,6 @@ class Coordinator(DataUpdateCoordinator):
 
         # Update the coordinator data
         heat_pump_state.target_flow_temperature = target_flow_temperature
-        LOGGER.debug(heat_pump_state)  # TODO: nuke
         self.async_set_updated_data(heat_pump_state)
 
         # Request a state update
