@@ -282,24 +282,16 @@ class ApiClient:
             ) from exception
 
     def _determine_daily_coefficient_of_performance(self, device):
+        daily_total_energy_consumed = self._determine_daily_total_energy_consumed(
+            device
+        )
+        daily_total_energy_produced = self._determine_daily_total_energy_produced(
+            device
+        )
         return (
-            round(
-                (
-                    device["DailyHeatingEnergyConsumed"]
-                    + device["DailyHotWaterEnergyConsumed"]
-                )
-                / (
-                    device["DailyHeatingEnergyProduced"]
-                    + device["DailyHotWaterEnergyProduced"]
-                ),
-                2,
-            )
-            if (
-                device["DailyHeatingEnergyProduced"]
-                + device["DailyHotWaterEnergyProduced"]
-            )
-            > 0
-            else 0
+            round(daily_total_energy_produced / daily_total_energy_consumed, 2)
+            if daily_total_energy_consumed > 0
+            else None
         )
 
     def _determine_daily_total_energy_produced(self, device):

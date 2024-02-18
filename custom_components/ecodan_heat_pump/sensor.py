@@ -8,9 +8,7 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorStateClass,
 )
-from homeassistant.const import (
-    UnitOfTemperature,
-)
+from homeassistant.const import UnitOfTemperature, UnitOfEnergy
 
 from custom_components.ecodan_heat_pump.const import DOMAIN
 from custom_components.ecodan_heat_pump.coordinator import Coordinator
@@ -105,6 +103,46 @@ async def async_setup_entry(hass, entry, async_add_entities):
                     suggested_display_precision=0,
                 ),
                 value_function=lambda coordinator: coordinator.data.outdoor_temperature,
+            ),
+            HeatPumpSensorEntity(
+                unique_id="heat_pump_daily_total_energy_consumed",
+                coordinator=coordinator,
+                entity_description=SensorEntityDescription(
+                    key=DOMAIN,
+                    name="Heat pump daily total energy consumed",
+                    icon="mdi:lightning-bolt-outline",
+                    device_class=SensorDeviceClass.ENERGY,
+                    state_class=SensorStateClass.TOTAL_INCREASING,
+                    native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                    suggested_display_precision=1,
+                ),
+                value_function=lambda coordinator: coordinator.data.daily_total_energy_consumed,
+            ),
+            HeatPumpSensorEntity(
+                unique_id="heat_pump_daily_total_energy_produced",
+                coordinator=coordinator,
+                entity_description=SensorEntityDescription(
+                    key=DOMAIN,
+                    name="Heat pump daily total energy produced",
+                    icon="mdi:lightning-bolt",
+                    device_class=SensorDeviceClass.ENERGY,
+                    state_class=SensorStateClass.TOTAL_INCREASING,
+                    native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
+                    suggested_display_precision=1,
+                ),
+                value_function=lambda coordinator: coordinator.data.daily_total_energy_produced,
+            ),
+            HeatPumpSensorEntity(
+                unique_id="heat_pump_daily_coefficient_of_performance",
+                coordinator=coordinator,
+                entity_description=SensorEntityDescription(
+                    key=DOMAIN,
+                    name="Heat pump daily coefficient of performance (COP)",
+                    icon="mdi:home-percent-outline",
+                    state_class=SensorStateClass.MEASUREMENT,
+                    suggested_display_precision=2,
+                ),
+                value_function=lambda coordinator: coordinator.data.daily_coefficient_of_performance,
             ),
         ]
     )
