@@ -259,7 +259,7 @@ class ApiClient:
                 ),
                 daily_energy_report_date=parser.parse(
                     device["DailyEnergyConsumedDate"]
-                ),
+                ).date(),
                 daily_heating_energy_consumed=device["DailyHeatingEnergyConsumed"],
                 daily_heating_energy_produced=device["DailyHeatingEnergyProduced"],
                 daily_hot_water_energy_consumed=device["DailyHotWaterEnergyConsumed"],
@@ -274,6 +274,8 @@ class ApiClient:
                     device
                 ),
             )
+            # TODO: nuke
+            LOGGER.debug(type(heat_pump_state.daily_energy_report_date))
             return heat_pump_state
         except Exception as exception:
             LOGGER.exception(exception)
