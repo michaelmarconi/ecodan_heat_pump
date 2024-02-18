@@ -12,40 +12,50 @@ from .const import DOMAIN
 from .coordinator import Coordinator
 from .entity import EcodanHeatPumpEntity
 
-ENTITY_DESCRIPTIONS = (
-    BinarySensorEntityDescription(
-        key="ecodan_heat_pump",
-        name="Ecodan Heat Pump Binary Sensor",
-        device_class=BinarySensorDeviceClass.CONNECTIVITY,
-    ),
-)
-
 
 async def async_setup_entry(hass, entry, async_add_devices):
     """Set up the binary_sensor platform."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_devices(
-        IntegrationBlueprintBinarySensor(
-            coordinator=coordinator,
-            entity_description=entity_description,
-        )
-        for entity_description in ENTITY_DESCRIPTIONS
-    )
+    async_add_devices([HeatPumpPowerBinarySensor(coordinator)])
 
 
-class IntegrationBlueprintBinarySensor(EcodanHeatPumpEntity, BinarySensorEntity):
-    """ecodan_heat_pump binary_sensor class."""
+class HeatPumpBinarySensorEntity(EcodanHeatPumpEntity, BinarySensorEntity):
+    """Generic heat pump binary sensor"""
+
+    def __init__(
+        self,
+        unique_id: str,
+        coordinator: Coordinator,
+        entity_description: BinarySensorEntityDescription,
+        is_on_function: function,
+    ) -> None:
+        super().__init__(coordinator)
+        self._coordinator = coordinator
+        self.entity_description = entity_description
+        self._attr_unique_id = f"sensor.{unique_id}"
+        self.is_on_function = is_on_function
+
+    @property
+    def is_on(self) -> bool:
+        """Return the is_on value by calling the is_on function."""
+        return self.is_on_function(self._coordinator)
+
+
+class HeatPumpPowerBinarySensor(HeatPumpBinarySensorEntity):
+    """Heat pump power binary sensor"""
 
     def __init__(
         self,
         coordinator: Coordinator,
-        entity_description: BinarySensorEntityDescription,
     ) -> None:
-        """Initialize the binary_sensor class."""
-        super().__init__(coordinator)
-        self.entity_description = entity_description
-
-    @property
-    def is_on(self) -> bool:
-        """Return true if the binary_sensor is on."""
-        return self.coordinator.data.get("title", "") == "foo"
+        super().__init__(
+            unique_id="heat_pump_target_flow_temperature",
+            coordinator=coordinator,
+            entity_description=BinarySensorEntityDescription(
+                key=DOMAIN,
+                name="Heat pump power",
+                icon="mdi:power",
+                device_class=BinarySensorDeviceClass.POWER,
+            ),
+            is_on_function=lambda coordinator: coordinator.data.has_power,
+        )

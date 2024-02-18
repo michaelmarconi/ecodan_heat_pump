@@ -43,7 +43,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
 
 class HeatPumpSensorEntity(EcodanHeatPumpEntity, SensorEntity):
-    """Generic heat pump temperature sensor"""
+    """Generic heat pump sensor"""
 
     def __init__(
         self,
@@ -60,7 +60,7 @@ class HeatPumpSensorEntity(EcodanHeatPumpEntity, SensorEntity):
 
     @property
     def native_value(self) -> str:
-        """Return the temperature value by calling the value function."""
+        """Return the native value by calling the value function."""
         return self.value_function(self._coordinator)
 
 
