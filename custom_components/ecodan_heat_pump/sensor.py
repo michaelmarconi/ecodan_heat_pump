@@ -413,7 +413,7 @@ class HeatPumpDailyHeatingEnergyProducedSensor(HeatPumpSensorEntity):
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
                 name="Heat pump daily heating energy produced",
-                icon="mdi:lightning-bolt-outline",
+                icon="mdi:lightning-bolt",
                 device_class=SensorDeviceClass.ENERGY,
                 state_class=SensorStateClass.TOTAL_INCREASING,
                 native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,
@@ -459,7 +459,7 @@ class HeatPumpDailyHotWaterEnergyProducedSensor(HeatPumpSensorEntity):
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
                 name="Heat pump daily hot water energy produced",
-                icon="mdi:lightning-bolt-outline",
+                icon="mdi:lightning-bolt",
                 device_class=SensorDeviceClass.ENERGY,
                 state_class=SensorStateClass.TOTAL_INCREASING,
                 native_unit_of_measurement=UnitOfEnergy.KILO_WATT_HOUR,

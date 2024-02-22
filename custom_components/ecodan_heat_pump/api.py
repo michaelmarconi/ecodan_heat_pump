@@ -287,7 +287,7 @@ class ApiClient:
         return (
             round(daily_total_energy_produced / daily_total_energy_consumed, 2)
             if daily_total_energy_consumed > 0
-            else None
+            else 0
         )
 
     def _determine_daily_total_energy_produced(self, device):
@@ -321,8 +321,8 @@ class ApiClient:
     def _determine_current_coefficient_of_performance(self, device) -> float:
         return (
             round(device["CurrentEnergyProduced"] / device["CurrentEnergyConsumed"], 2)
-            if device["CurrentEnergyProduced"] > 0
-            else None
+            if device["CurrentEnergyConsumed"] > 0
+            else 0
         )
 
     async def _async_api_post(
