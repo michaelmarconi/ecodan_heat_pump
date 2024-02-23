@@ -16,7 +16,15 @@ from .entity import EcodanHeatPumpEntity
 async def async_setup_entry(hass, entry, async_add_devices):
     """Set up the binary_sensor platform."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    async_add_devices([HeatPumpPowerBinarySensor(coordinator)])
+    async_add_devices(
+        [
+            HeatPumpDefrostModeBinarySensor(coordinator),
+            HeatPumpOfflineBinarySensor(coordinator),
+            HeatPumpHolidayModeBinarySensor(coordinator),
+            HeatPumpHeatingProhibitedModeBinarySensor(coordinator),
+            HeatPumpHotWaterProhibitedModeBinarySensor(coordinator),
+        ]
+    )
 
 
 class HeatPumpBinarySensorEntity(EcodanHeatPumpEntity, BinarySensorEntity):
@@ -41,21 +49,101 @@ class HeatPumpBinarySensorEntity(EcodanHeatPumpEntity, BinarySensorEntity):
         return self.is_on_function(self._coordinator)
 
 
-class HeatPumpPowerBinarySensor(HeatPumpBinarySensorEntity):
-    """Heat pump power binary sensor"""
+class HeatPumpDefrostModeBinarySensor(HeatPumpBinarySensorEntity):
+    """Heat pump defrost mode binary sensor"""
 
     def __init__(
         self,
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_target_flow_temperature",
+            unique_id="heat_pump_defrost_mode_binary_sensor",
             coordinator=coordinator,
             entity_description=BinarySensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump power",
-                icon="mdi:power",
+                name="Heat pump defrost mode",
+                icon="mdi:snowflake-melt",
                 device_class=BinarySensorDeviceClass.POWER,
             ),
-            is_on_function=lambda coordinator: coordinator.data.has_power,
+            is_on_function=lambda coordinator: coordinator.data.is_defrost_mode,
+        )
+
+
+class HeatPumpOfflineBinarySensor(HeatPumpBinarySensorEntity):
+    """Heat pump offline binary sensor"""
+
+    def __init__(
+        self,
+        coordinator: Coordinator,
+    ) -> None:
+        super().__init__(
+            unique_id="heat_pump_offline_binary_sensor",
+            coordinator=coordinator,
+            entity_description=BinarySensorEntityDescription(
+                key=DOMAIN,
+                name="Heat pump offline",
+                icon="mdi:lan-disconnect",
+                device_class=BinarySensorDeviceClass.POWER,
+            ),
+            is_on_function=lambda coordinator: coordinator.data.is_offline,
+        )
+
+
+class HeatPumpHolidayModeBinarySensor(HeatPumpBinarySensorEntity):
+    """Heat pump holiday mode binary sensor"""
+
+    def __init__(
+        self,
+        coordinator: Coordinator,
+    ) -> None:
+        super().__init__(
+            unique_id="heat_pump_holiday_mode_binary_sensor",
+            coordinator=coordinator,
+            entity_description=BinarySensorEntityDescription(
+                key=DOMAIN,
+                name="Heat pump holiday mode",
+                icon="mdi:palm-tree",
+                device_class=BinarySensorDeviceClass.POWER,
+            ),
+            is_on_function=lambda coordinator: coordinator.data.is_holiday_mode,
+        )
+
+
+class HeatPumpHeatingProhibitedModeBinarySensor(HeatPumpBinarySensorEntity):
+    """Heat pump heating prohibited binary sensor"""
+
+    def __init__(
+        self,
+        coordinator: Coordinator,
+    ) -> None:
+        super().__init__(
+            unique_id="heat_pump_heating_prohibited_binary_sensor",
+            coordinator=coordinator,
+            entity_description=BinarySensorEntityDescription(
+                key=DOMAIN,
+                name="Heat pump heating prohibited",
+                icon="mdi:cancel",
+                device_class=BinarySensorDeviceClass.POWER,
+            ),
+            is_on_function=lambda coordinator: coordinator.data.is_heating_prohibited,
+        )
+
+
+class HeatPumpHotWaterProhibitedModeBinarySensor(HeatPumpBinarySensorEntity):
+    """Heat pump how water heating prohibited binary sensor"""
+
+    def __init__(
+        self,
+        coordinator: Coordinator,
+    ) -> None:
+        super().__init__(
+            unique_id="heat_pump_hot_water_prohibited_binary_sensor",
+            coordinator=coordinator,
+            entity_description=BinarySensorEntityDescription(
+                key=DOMAIN,
+                name="Heat pump hot water prohibited",
+                icon="mdi:cancel",
+                device_class=BinarySensorDeviceClass.POWER,
+            ),
+            is_on_function=lambda coordinator: coordinator.data.is_heating_water_prohibited,
         )

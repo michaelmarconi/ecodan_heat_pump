@@ -30,7 +30,7 @@ from custom_components.ecodan_heat_pump.models import Credentials, CredentialsId
 PLATFORMS: list[Platform] = [
     Platform.SENSOR,
     Platform.BINARY_SENSOR,
-    # Platform.SWITCH,
+    Platform.SWITCH,
     Platform.CLIMATE,
 ]
 

@@ -139,19 +139,23 @@ class ApiClient:
             return None
 
     async def async_set_flow_temperature(
-        self, deviceId: str, temperature: float
+        self, deviceId: str, flow_temperature: float, hot_water_temperature: float
     ) -> float:
-        """Set the flow temperature for heating"""
+        """
+        Set the flow temperature for heating.
+        If you don't also set the hot water temperature, it lowers it to the minimum!
+        """
 
-        LOGGER.debug(f"Setting flow temperature to '{temperature}'...")
+        LOGGER.debug(f"Setting flow temperature to '{flow_temperature}'...")
 
         # Get the next set of credentials to use
         credentials = await self._async_get_next_credentials()
 
         # Configure the request data
         data = {
-            "EffectiveFlags": 0x1000004000020,
-            "SetHeatFlowTemperatureZone1": temperature,
+            "EffectiveFlags": 281475043819552,
+            "SetHeatFlowTemperatureZone1": flow_temperature,
+            "SetTankWaterTemperature": hot_water_temperature,
             "DeviceID": deviceId,
         }
 

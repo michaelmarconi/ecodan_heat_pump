@@ -130,7 +130,8 @@ class Coordinator(DataUpdateCoordinator):
         # Set the heat pump operation mode using the API
         target_flow_temperature = await self.client.async_set_flow_temperature(
             deviceId=heat_pump_state.device_id,
-            temperature=temperature,
+            flow_temperature=temperature,
+            hot_water_temperature=heat_pump_state.target_water_tank_temperature,
         )
 
         # Update the coordinator data
