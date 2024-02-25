@@ -28,14 +28,14 @@ async def async_setup_entry(hass, entry, async_add_devices):
 
 
 class HeatPumpBinarySensorEntity(EcodanHeatPumpEntity, BinarySensorEntity):
-    """Generic heat pump binary sensor"""
+    """Generic heat pump binary sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         unique_id: str,
         coordinator: Coordinator,
         entity_description: BinarySensorEntityDescription,
-        is_on_function: function,
+        is_on_function: function,  # noqa: F821
     ) -> None:
         super().__init__(coordinator)
         self._coordinator = coordinator
@@ -50,9 +50,9 @@ class HeatPumpBinarySensorEntity(EcodanHeatPumpEntity, BinarySensorEntity):
 
 
 class HeatPumpDefrostModeBinarySensor(HeatPumpBinarySensorEntity):
-    """Heat pump defrost mode binary sensor"""
+    """Heat pump defrost mode binary sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -70,9 +70,9 @@ class HeatPumpDefrostModeBinarySensor(HeatPumpBinarySensorEntity):
 
 
 class HeatPumpOfflineBinarySensor(HeatPumpBinarySensorEntity):
-    """Heat pump offline binary sensor"""
+    """Heat pump offline binary sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -90,9 +90,9 @@ class HeatPumpOfflineBinarySensor(HeatPumpBinarySensorEntity):
 
 
 class HeatPumpHolidayModeBinarySensor(HeatPumpBinarySensorEntity):
-    """Heat pump holiday mode binary sensor"""
+    """Heat pump holiday mode binary sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -110,9 +110,9 @@ class HeatPumpHolidayModeBinarySensor(HeatPumpBinarySensorEntity):
 
 
 class HeatPumpHeatingProhibitedModeBinarySensor(HeatPumpBinarySensorEntity):
-    """Heat pump heating prohibited binary sensor"""
+    """Heat pump heating prohibited binary sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -130,9 +130,9 @@ class HeatPumpHeatingProhibitedModeBinarySensor(HeatPumpBinarySensorEntity):
 
 
 class HeatPumpHotWaterProhibitedModeBinarySensor(HeatPumpBinarySensorEntity):
-    """Heat pump how water heating prohibited binary sensor"""
+    """Heat pump how water heating prohibited binary sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:

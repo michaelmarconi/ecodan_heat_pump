@@ -1,36 +1,39 @@
-import datetime
+import datetime  # noqa: D100
 
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
-class CredentialsId(Enum):
+class CredentialsId(Enum):  # noqa: D101
     CREDENTIALS_1 = "credentials_1"
     CREDENTIALS_2 = "credentials_2"
     CREDENTIALS_3 = "credentials_3"
 
 
-class HeatingMode(Enum):
+class HeatingMode(Enum):  # noqa: D101
     FLOW_TEMPERATURE = "heat_flow"
     CURVE_TEMPERATURE = "curve"
 
 
-class HeatingStatus(Enum):
+class HeatingStatus(Enum):  # noqa: D101
     HEATING = "heating"
     IDLE = "idle"
 
 
 @dataclass
 class Credentials:
+    """These are the credentials used to access the MELCloud API."""
+
     id: CredentialsId
     username: str
     password: str
-    access_token: Optional[str] = None
+    access_token: str | None = None
 
 
 @dataclass
 class HeatPumpState:
+    """This is the model for the latest state of the heat pump."""
+
     device_id: str
     wifi_status: str
     wifi_signal_stregth: int

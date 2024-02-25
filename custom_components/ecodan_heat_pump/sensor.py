@@ -43,14 +43,14 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
 
 class HeatPumpSensorEntity(EcodanHeatPumpEntity, SensorEntity):
-    """Generic heat pump sensor"""
+    """Generic heat pump sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         unique_id: str,
         coordinator: Coordinator,
         entity_description: SensorEntityDescription,
-        value_function: function,
+        value_function: function,  # noqa: F821
     ) -> None:
         super().__init__(coordinator)
         self._coordinator = coordinator
@@ -65,9 +65,9 @@ class HeatPumpSensorEntity(EcodanHeatPumpEntity, SensorEntity):
 
 
 class HeatPumpTargetFlowTempSensor(HeatPumpSensorEntity):
-    """Target flow temperature sensor"""
+    """Target flow temperature sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -88,9 +88,9 @@ class HeatPumpTargetFlowTempSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpFlowTempSensor(HeatPumpSensorEntity):
-    """Flow temperature sensor"""
+    """Flow temperature sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -111,9 +111,9 @@ class HeatPumpFlowTempSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpReturnTempSensor(HeatPumpSensorEntity):
-    """Return temperature sensor"""
+    """Return temperature sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -134,9 +134,9 @@ class HeatPumpReturnTempSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpTargetWaterTankTempSensor(HeatPumpSensorEntity):
-    """Target water tank temperature sensor"""
+    """Target water tank temperature sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -157,9 +157,9 @@ class HeatPumpTargetWaterTankTempSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpWaterTankTempSensor(HeatPumpSensorEntity):
-    """Water tank temperature sensor"""
+    """Water tank temperature sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -180,9 +180,9 @@ class HeatPumpWaterTankTempSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpOutdoorTempSensor(HeatPumpSensorEntity):
-    """Outdoor temperature sensor"""
+    """Outdoor temperature sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -203,9 +203,9 @@ class HeatPumpOutdoorTempSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpLastCommunicationSensor(HeatPumpSensorEntity):
-    """Timestamp of last communication with the heat pump via the API"""
+    """Timestamp of last communication with the heat pump via the API."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -223,9 +223,9 @@ class HeatPumpLastCommunicationSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpRateOfCurrentEnergyConsumptionSensor(HeatPumpSensorEntity):
-    """Rate of current energy consumption sensor"""
+    """Rate of current energy consumption sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -246,9 +246,9 @@ class HeatPumpRateOfCurrentEnergyConsumptionSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpRateOfCurrentEnergyProductionSensor(HeatPumpSensorEntity):
-    """Rate of current energy production sensor"""
+    """Rate of current energy production sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -269,9 +269,9 @@ class HeatPumpRateOfCurrentEnergyProductionSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpCurrentCoefficientOfPerformaceSensor(HeatPumpSensorEntity):
-    """Current coefficient of performace sensor"""
+    """Current coefficient of performace sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -290,9 +290,9 @@ class HeatPumpCurrentCoefficientOfPerformaceSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpDailyEnergyReportDateSensor(HeatPumpSensorEntity):
-    """Daily energy report date sensor"""
+    """Daily energy report date sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -311,9 +311,9 @@ class HeatPumpDailyEnergyReportDateSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpDailyTotalEnergyConsumedSensor(HeatPumpSensorEntity):
-    """Daily total energy consumed sensor"""
+    """Daily total energy consumed sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -334,9 +334,9 @@ class HeatPumpDailyTotalEnergyConsumedSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpDailyTotalEnergyProducedSensor(HeatPumpSensorEntity):
-    """Daily total energy produced sensor"""
+    """Daily total energy produced sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -357,9 +357,9 @@ class HeatPumpDailyTotalEnergyProducedSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpDailyCoefficientOfPerformaceSensor(HeatPumpSensorEntity):
-    """Daily total coefficient of performace sensor"""
+    """Daily total coefficient of performace sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -378,9 +378,9 @@ class HeatPumpDailyCoefficientOfPerformaceSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpDailyHeatingEnergyConsumedSensor(HeatPumpSensorEntity):
-    """Daily heating energy consumed sensor"""
+    """Daily heating energy consumed sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -401,9 +401,9 @@ class HeatPumpDailyHeatingEnergyConsumedSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpDailyHeatingEnergyProducedSensor(HeatPumpSensorEntity):
-    """Daily heating energy produced sensor"""
+    """Daily heating energy produced sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -424,9 +424,9 @@ class HeatPumpDailyHeatingEnergyProducedSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpDailyHotWaterEnergyConsumedSensor(HeatPumpSensorEntity):
-    """Daily hot water energy consumed sensor"""
+    """Daily hot water energy consumed sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -447,9 +447,9 @@ class HeatPumpDailyHotWaterEnergyConsumedSensor(HeatPumpSensorEntity):
 
 
 class HeatPumpDailyHotWaterEnergyProducedSensor(HeatPumpSensorEntity):
-    """Daily hot water energy produced sensor"""
+    """Daily hot water energy produced sensor."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:

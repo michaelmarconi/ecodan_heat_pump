@@ -1,4 +1,4 @@
-class ApiClientException(Exception):
+class ApiClientException(Exception):  # noqa: D100
     """Exception to indicate a general API error."""
 
 
@@ -11,4 +11,4 @@ class ApiClientAuthenticationException(ApiClientException):
 
 
 class UnrecognisedPresetModeException(Exception):
-    """Exception to indicate that a preset mode was unrecognised"""
+    """Exception to indicate that a preset mode was unrecognised."""

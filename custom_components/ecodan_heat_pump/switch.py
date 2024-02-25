@@ -6,7 +6,7 @@ from homeassistant.components.switch import SwitchEntity, SwitchEntityDescriptio
 
 from custom_components.ecodan_heat_pump.models import HeatPumpState
 
-from .const import DOMAIN, LOGGER
+from .const import DOMAIN
 from .coordinator import Coordinator
 from .entity import EcodanHeatPumpEntity
 
@@ -20,14 +20,14 @@ async def async_setup_entry(hass, entry, async_add_devices):
 
 
 class HeatPumpSwitchEntity(EcodanHeatPumpEntity, SwitchEntity):
-    """Generic heat pump switch"""
+    """Generic heat pump switch."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         unique_id: str,
         coordinator: Coordinator,
         entity_description: SwitchEntityDescription,
-        is_on_function: function,
+        is_on_function: function,  # noqa: F821
     ) -> None:
         super().__init__(coordinator)
         self._coordinator = coordinator
@@ -42,9 +42,9 @@ class HeatPumpSwitchEntity(EcodanHeatPumpEntity, SwitchEntity):
 
 
 class HeatPumpPowerSwitch(HeatPumpSwitchEntity):
-    """The power switch for the heat pump"""
+    """The power switch for the heat pump."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:
@@ -71,9 +71,9 @@ class HeatPumpPowerSwitch(HeatPumpSwitchEntity):
 
 
 class HeatPumpForceHotWaterSwitch(HeatPumpSwitchEntity):
-    """The switch that forces the heat pump to heat hot water"""
+    """The switch that forces the heat pump to heat hot water."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         coordinator: Coordinator,
     ) -> None:

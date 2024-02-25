@@ -16,12 +16,10 @@ from homeassistant.components.climate.const import (
 from homeassistant.const import TEMP_CELSIUS
 
 from custom_components.ecodan_heat_pump.errors import UnrecognisedPresetModeException
-from custom_components.ecodan_heat_pump.api import ApiClient
 from custom_components.ecodan_heat_pump.models import (
     HeatPumpState,
     HeatingMode,
     HeatingStatus,
-    HeatingMode,
 )
 from custom_components.ecodan_heat_pump.const import (
     DOMAIN,
@@ -116,9 +114,9 @@ class HeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
     def preset_mode(self) -> str:
         """Return current hvac operation mode."""
         heat_pump_state: HeatPumpState = self.coordinator.data
-        if heat_pump_state.is_forced_to_heat_water == False:
+        if heat_pump_state.is_forced_to_heat_water is False:
             return PRESET_NONE
-        elif heat_pump_state.is_forced_to_heat_water == True:
+        elif heat_pump_state.is_forced_to_heat_water is True:
             return PRESET_BOOST
         else:
             raise UnrecognisedPresetModeException(
@@ -138,9 +136,7 @@ class HeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
         return heat_pump_state.target_flow_temperature
 
     async def async_set_temperature(self, **kwargs) -> None:
-        """
-        Set new target flow temperature.
-        """
+        """Set new target flow temperature."""
         flow_temperature = kwargs["temperature"]
         LOGGER.debug(f"Setting flow temperature to '{flow_temperature}'...")
         coordinator: Coordinator = self.coordinator
@@ -156,12 +152,12 @@ class HeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
             await coordinator.async_toggle_heat_pump_power(power=False)
         elif hvac_mode == HVACMode.HEAT:
             LOGGER.debug("Setting HVAC mode to 'heat'...")
-            if heat_pump_state.has_power == False:
+            if heat_pump_state.has_power is False:
                 await coordinator.async_toggle_heat_pump_power(power=True)
             await coordinator.async_set_heating_mode(HeatingMode.FLOW_TEMPERATURE)
         elif hvac_mode == HVACMode.AUTO:
             LOGGER.debug("Setting HVAC mode to 'auto'...")
-            if heat_pump_state.has_power == False:
+            if heat_pump_state.has_power is False:
                 await coordinator.async_toggle_heat_pump_power(power=True)
             await coordinator.async_set_heating_mode(HeatingMode.CURVE_TEMPERATURE)
         return

@@ -19,7 +19,9 @@
                 "ryanluker.vscode-coverage-gutters",
                 "ms-python.vscode-pylance",
                 "ms-python.black-formatter",
-                "Gruntfuggly.todo-tree"
+                "Gruntfuggly.todo-tree",
+                "charliermarsh.ruff",
+                "github.vscode-github-actions"
             ],
             "settings": {
                 "files.eol": "\n",

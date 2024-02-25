@@ -14,8 +14,6 @@ from custom_components.ecodan_heat_pump.coordinator import (
 class EcodanHeatPumpEntity(CoordinatorEntity):
     """Ecodan Heat Pump entity class."""
 
-    _attr_attribution = "Blah blah..."
-
     def __init__(self, coordinator: Coordinator) -> None:
         """Initialize."""
         super().__init__(coordinator)

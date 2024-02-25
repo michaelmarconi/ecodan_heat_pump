@@ -20,7 +20,6 @@ from custom_components.ecodan_heat_pump.models import (
     HeatPumpState,
     HeatingMode,
     HeatingStatus,
-    HeatingMode,
 )
 from custom_components.ecodan_heat_pump.const import LOGGER
 
@@ -31,11 +30,9 @@ SETTINGS_URL = f"{BASE_URL}/Device/SetAtw"
 
 
 class ApiClient:
-    """
-    This is the MELCLoud API client
-    """
+    """This is the MELCLoud API client."""
 
-    def __init__(
+    def __init__(  # noqa: D107
         self,
         credentials: list[Credentials],
         session: aiohttp.ClientSession,
@@ -45,7 +42,7 @@ class ApiClient:
         self._credentials_last_used: Credentials = None
 
     async def async_get_data(self) -> HeatPumpState:
-        """Update the heat pump state model"""
+        """Update the heat pump state model."""
 
         # Get the next set of credentials to use
         credentials = await self._async_get_next_credentials()
@@ -59,7 +56,7 @@ class ApiClient:
         return heat_pump_state
 
     async def async_toggle_heat_pump_power(self, deviceId: str, power: bool) -> bool:
-        """Toggle the heat pump power on or off"""
+        """Toggle the heat pump power on or off."""
 
         # Get the next set of credentials to use
         credentials = await self._async_get_next_credentials()
@@ -77,7 +74,7 @@ class ApiClient:
         return has_power
 
     async def async_toggle_water_heating(self, deviceId: str, heat_water: bool) -> bool:
-        """Toggle hot water heating on/off"""
+        """Toggle hot water heating on/off."""
 
         LOGGER.debug(f"Toggling water heating to '{heat_water}'...")
 
@@ -102,7 +99,7 @@ class ApiClient:
     async def async_set_heating_mode(
         self, deviceId: str, heating_mode: HeatingMode | None
     ) -> HeatingMode:
-        """Set the heating mode (flow/curve)"""
+        """Set the heating mode (flow/curve)."""
 
         LOGGER.debug(f"Setting heating mode to'{heating_mode}'...")
 
@@ -141,10 +138,7 @@ class ApiClient:
     async def async_set_flow_temperature(
         self, deviceId: str, flow_temperature: float, hot_water_temperature: float
     ) -> float:
-        """
-        Set the flow temperature for heating.
-        If you don't also set the hot water temperature, it lowers it to the minimum!
-        """
+        """Set the flow temperature for heating. If you don't also set the hot water temperature, it lowers it to the minimum!."""
 
         LOGGER.debug(f"Setting flow temperature to '{flow_temperature}'...")
 
@@ -168,9 +162,9 @@ class ApiClient:
         return flow_temperature
 
     async def _async_get_next_credentials(self) -> Credentials:
-        """Get the next set of credentials to use in the series"""
+        """Get the next set of credentials to use in the series."""
         next_credentials: Credentials
-        if self._credentials_last_used == None:
+        if self._credentials_last_used is None:
             next_credentials = self._credentials[0]
             self._credentials_last_used = next_credentials
         else:
@@ -184,15 +178,15 @@ class ApiClient:
             self._credentials_last_used = next_credentials
 
         # Log in and get an access token if necessary
-        if next_credentials.access_token == None:
+        if next_credentials.access_token is None:
             await self._async_login(next_credentials)
 
         LOGGER.debug(f"Using credentials '{next_credentials.id}'...")
         return next_credentials
 
     async def _async_login(self, credentials: Credentials):
-        """Log in and get an access token, which is stored in the credentials"""
-        if credentials.access_token != None:
+        """Log in and get an access token, which is stored in the credentials."""
+        if credentials.access_token is not None:
             raise ApiClientException(
                 f"Credentials '{credentials.id}' already has an access token!"
             )
@@ -207,7 +201,7 @@ class ApiClient:
             },
         )
         errorId = response["ErrorId"]
-        if errorId != None:
+        if errorId is not None:
             raise ApiClientAuthenticationException(
                 f"Log in failed with credentials '{credentials.id}' ({credentials.username})!"
             )
@@ -225,7 +219,7 @@ class ApiClient:
         return
 
     def _map_response_to_heat_pump_state(self, response: json) -> HeatPumpState:
-        """Map the response from the API to the heat pump state model"""
+        """Map the response from the API to the heat pump state model."""
 
         try:
             heat_pump_data = response[0]
@@ -310,7 +304,7 @@ class ApiClient:
 
     def _determine_heating_status(self, device) -> HeatingStatus:
         return (
-            HeatingStatus.IDLE if device["IdleZone1"] == True else HeatingStatus.HEATING
+            HeatingStatus.IDLE if device["IdleZone1"] is True else HeatingStatus.HEATING
         )
 
     def _determine_heating_mode(self, device) -> HeatingMode | None:
@@ -351,7 +345,7 @@ class ApiClient:
             "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1.2 Safari/605.1.15",
             "X-Requested-With": "XMLHttpRequest",
         }
-        if credentials != None:
+        if credentials is not None:
             headers["X-MitsContextKey"] = credentials.access_token
 
         try:

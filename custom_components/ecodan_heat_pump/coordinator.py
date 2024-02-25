@@ -28,7 +28,7 @@ from custom_components.ecodan_heat_pump.models import HeatPumpState, HeatingMode
 
 # https://developers.home-assistant.io/docs/integration_fetching_data#coordinated-single-api-poll-for-data-for-all-entities
 class Coordinator(DataUpdateCoordinator):
-    """Data coordinator using a data store to limit impact on API"""
+    """Data coordinator using a data store to limit impact on API."""
 
     config_entry: ConfigEntry
 
@@ -47,7 +47,7 @@ class Coordinator(DataUpdateCoordinator):
         )
 
     async def _async_update_data(self):
-        """Refresh the data in the coordinator using the underlying API client"""
+        """Refresh the data in the coordinator using the underlying API client."""
         try:
             return await self.client.async_get_data()
         except ApiClientAuthenticationException as exception:
@@ -56,7 +56,7 @@ class Coordinator(DataUpdateCoordinator):
             raise UpdateFailed(exception) from exception
 
     async def async_toggle_heat_pump_power(self, power: bool):
-        """Toggle the heat pump power on or off"""
+        """Toggle the heat pump power on or off."""
 
         # Get the heat pump state from the coordinator
         heat_pump_state: HeatPumpState = self.data
@@ -78,7 +78,7 @@ class Coordinator(DataUpdateCoordinator):
         return
 
     async def async_toggle_water_heating(self, heat_water: bool):
-        """Toggle hot water heating on/off"""
+        """Toggle hot water heating on/off."""
 
         # Get the heat pump state from the coordinator
         heat_pump_state: HeatPumpState = self.data
@@ -100,7 +100,7 @@ class Coordinator(DataUpdateCoordinator):
         return
 
     async def async_set_heating_mode(self, heating_mode: HeatingMode):
-        """Set the heating mode (flow/curve)"""
+        """Set the heating mode (flow/curve)."""
 
         # Get the heat pump state from the coordinator
         heat_pump_state: HeatPumpState = self.data
@@ -122,7 +122,7 @@ class Coordinator(DataUpdateCoordinator):
         return
 
     async def async_set_flow_temperature(self, temperature: float):
-        """Set the flow temperature for heating"""
+        """Set the flow temperature for heating."""
 
         # Get the heat pump state from the coordinator
         heat_pump_state: HeatPumpState = self.data

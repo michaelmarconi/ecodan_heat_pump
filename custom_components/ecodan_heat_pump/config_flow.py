@@ -1,7 +1,8 @@
 """Adds config flow for Blueprint."""
 
 from __future__ import annotations
-from typing import Any, Mapping
+from typing import Any
+from collections.abc import Mapping
 
 import voluptuous as vol
 from homeassistant.config_entries import ConfigFlow, FlowResult
@@ -43,16 +44,16 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
         """Handle a flow initialized by the user."""
         LOGGER.debug("Setting up API credentials...")
         _errors = {}
-        self._entry_data = user_input if user_input != None else {}
+        self._entry_data = user_input if user_input is not None else {}
         if user_input is not None:
             try:
                 await self._test_credentials(user_input)
-            except ApiClientAuthenticationException as exception:
+            except ApiClientAuthenticationException:
                 _errors["base"] = "auth"
             except ApiClientCommunicationException as exception:
                 LOGGER.error(exception)
                 _errors["base"] = "connection"
-            except ApiClientException as exception:
+            except ApiClientException:
                 _errors["base"] = "unknown"
             else:
                 return self.async_create_entry(
@@ -112,6 +113,7 @@ class ConfigFlowHandler(ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_reauth(self, entry_data: Mapping[str, Any]) -> FlowResult:
+        """Reauthorisation step."""
         LOGGER.debug("Starting re-auth flow...")
         return await self.async_step_user(entry_data)
 
