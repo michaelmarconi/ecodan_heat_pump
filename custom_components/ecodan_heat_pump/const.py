@@ -7,7 +7,6 @@ LOGGER: Logger = getLogger(__package__)
 
 NAME = "Ecodan Heat Pump"
 DOMAIN = "ecodan_heat_pump"
-VERSION = "0.2.0-beta"
 
 MIN_FLOW_TEMP = 25
 MAX_FLOW_TEMP = 60
