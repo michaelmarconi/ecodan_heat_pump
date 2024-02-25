@@ -61,7 +61,7 @@ class HeatPumpDefrostModeBinarySensor(HeatPumpBinarySensorEntity):
             coordinator=coordinator,
             entity_description=BinarySensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump defrost mode",
+                name="Defrost mode",
                 icon="mdi:snowflake-melt",
                 device_class=BinarySensorDeviceClass.POWER,
             ),
@@ -81,7 +81,7 @@ class HeatPumpOfflineBinarySensor(HeatPumpBinarySensorEntity):
             coordinator=coordinator,
             entity_description=BinarySensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump offline",
+                name="Offline",
                 icon="mdi:lan-disconnect",
                 device_class=BinarySensorDeviceClass.POWER,
             ),
@@ -101,7 +101,7 @@ class HeatPumpHolidayModeBinarySensor(HeatPumpBinarySensorEntity):
             coordinator=coordinator,
             entity_description=BinarySensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump holiday mode",
+                name="Holiday mode",
                 icon="mdi:palm-tree",
                 device_class=BinarySensorDeviceClass.POWER,
             ),
@@ -121,7 +121,7 @@ class HeatPumpHeatingProhibitedModeBinarySensor(HeatPumpBinarySensorEntity):
             coordinator=coordinator,
             entity_description=BinarySensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump heating prohibited",
+                name="Heating prohibited",
                 icon="mdi:cancel",
                 device_class=BinarySensorDeviceClass.POWER,
             ),
@@ -141,7 +141,7 @@ class HeatPumpHotWaterProhibitedModeBinarySensor(HeatPumpBinarySensorEntity):
             coordinator=coordinator,
             entity_description=BinarySensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump hot water prohibited",
+                name="Hot water prohibited",
                 icon="mdi:cancel",
                 device_class=BinarySensorDeviceClass.POWER,
             ),

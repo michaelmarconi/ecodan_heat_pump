@@ -76,7 +76,7 @@ class HeatPumpTargetFlowTempSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump target flow temperature",
+                name="Target flow temperature",
                 icon="mdi:thermometer",
                 device_class=SensorDeviceClass.TEMPERATURE,
                 state_class=SensorStateClass.MEASUREMENT,
@@ -99,7 +99,7 @@ class HeatPumpFlowTempSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump flow temperature",
+                name="Flow temperature",
                 icon="mdi:thermometer-high",
                 device_class=SensorDeviceClass.TEMPERATURE,
                 state_class=SensorStateClass.MEASUREMENT,
@@ -122,7 +122,7 @@ class HeatPumpReturnTempSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump return temperature",
+                name="Return temperature",
                 icon="mdi:thermometer-low",
                 device_class=SensorDeviceClass.TEMPERATURE,
                 state_class=SensorStateClass.MEASUREMENT,
@@ -145,7 +145,7 @@ class HeatPumpTargetWaterTankTempSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump target water tank temperature",
+                name="Target water tank temperature",
                 icon="mdi:thermometer-water",
                 device_class=SensorDeviceClass.TEMPERATURE,
                 state_class=SensorStateClass.MEASUREMENT,
@@ -168,7 +168,7 @@ class HeatPumpWaterTankTempSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump water tank temperature",
+                name="Water tank temperature",
                 icon="mdi:thermometer-water",
                 device_class=SensorDeviceClass.TEMPERATURE,
                 state_class=SensorStateClass.MEASUREMENT,
@@ -191,7 +191,7 @@ class HeatPumpOutdoorTempSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump outdoor temperature",
+                name="Outdoor temperature",
                 icon="mdi:home-thermometer-outline",
                 device_class=SensorDeviceClass.TEMPERATURE,
                 state_class=SensorStateClass.MEASUREMENT,
@@ -214,7 +214,7 @@ class HeatPumpLastCommunicationSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump last communication",
+                name="Last communication",
                 icon="mdi:calendar-clock",
                 device_class=SensorDeviceClass.DATE,
             ),
@@ -234,7 +234,7 @@ class HeatPumpRateOfCurrentEnergyConsumptionSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump rate of current energy consumption",
+                name="Rate of current energy consumption",
                 icon="mdi:lightning-bolt",
                 device_class=SensorDeviceClass.POWER,
                 state_class=SensorStateClass.MEASUREMENT,
@@ -257,7 +257,7 @@ class HeatPumpRateOfCurrentEnergyProductionSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump rate of current energy production",
+                name="Rate of current energy production",
                 icon="mdi:lightning-bolt",
                 device_class=SensorDeviceClass.POWER,
                 state_class=SensorStateClass.MEASUREMENT,
@@ -280,7 +280,7 @@ class HeatPumpCurrentCoefficientOfPerformaceSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump current coefficient of performance (COP)",
+                name="Current coefficient of performance (COP)",
                 icon="mdi:home-percent-outline",
                 state_class=SensorStateClass.MEASUREMENT,
                 suggested_display_precision=2,
@@ -301,7 +301,7 @@ class HeatPumpDailyEnergyReportDateSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump daily total energy report date",
+                name="Daily total energy report date",
                 icon="mdi:calendar-today",
                 device_class=SensorDeviceClass.DATE,
                 suggested_display_precision=0,
@@ -322,7 +322,7 @@ class HeatPumpDailyTotalEnergyConsumedSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump daily total energy consumed",
+                name="Daily total energy consumed",
                 icon="mdi:lightning-bolt-outline",
                 device_class=SensorDeviceClass.ENERGY,
                 state_class=SensorStateClass.TOTAL_INCREASING,
@@ -345,7 +345,7 @@ class HeatPumpDailyTotalEnergyProducedSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump daily total energy produced",
+                name="Daily total energy produced",
                 icon="mdi:lightning-bolt",
                 device_class=SensorDeviceClass.ENERGY,
                 state_class=SensorStateClass.TOTAL_INCREASING,
@@ -368,7 +368,7 @@ class HeatPumpDailyCoefficientOfPerformaceSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump daily coefficient of performance (COP)",
+                name="Daily coefficient of performance (COP)",
                 icon="mdi:home-percent-outline",
                 state_class=SensorStateClass.MEASUREMENT,
                 suggested_display_precision=2,
@@ -389,7 +389,7 @@ class HeatPumpDailyHeatingEnergyConsumedSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump daily heating energy consumed",
+                name="Daily heating energy consumed",
                 icon="mdi:lightning-bolt-outline",
                 device_class=SensorDeviceClass.ENERGY,
                 state_class=SensorStateClass.TOTAL_INCREASING,
@@ -412,7 +412,7 @@ class HeatPumpDailyHeatingEnergyProducedSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump daily heating energy produced",
+                name="Daily heating energy produced",
                 icon="mdi:lightning-bolt",
                 device_class=SensorDeviceClass.ENERGY,
                 state_class=SensorStateClass.TOTAL_INCREASING,
@@ -435,7 +435,7 @@ class HeatPumpDailyHotWaterEnergyConsumedSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump daily hot water energy consumed",
+                name="Daily hot water energy consumed",
                 icon="mdi:lightning-bolt-outline",
                 device_class=SensorDeviceClass.ENERGY,
                 state_class=SensorStateClass.TOTAL_INCREASING,
@@ -458,7 +458,7 @@ class HeatPumpDailyHotWaterEnergyProducedSensor(HeatPumpSensorEntity):
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
-                name="Heat pump daily hot water energy produced",
+                name="Daily hot water energy produced",
                 icon="mdi:lightning-bolt",
                 device_class=SensorDeviceClass.ENERGY,
                 state_class=SensorStateClass.TOTAL_INCREASING,
