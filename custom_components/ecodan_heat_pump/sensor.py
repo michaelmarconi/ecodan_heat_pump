@@ -55,7 +55,7 @@ class HeatPumpSensorEntity(EcodanHeatPumpEntity, SensorEntity):
         super().__init__(coordinator)
         self._coordinator = coordinator
         self.entity_description = entity_description
-        self._attr_unique_id = f"sensor.{unique_id}"
+        self._attr_unique_id = f"sensor.heat_pump_{unique_id}"
         self.value_function = value_function
 
     @property
@@ -72,7 +72,7 @@ class HeatPumpTargetFlowTempSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_target_flow_temperature",
+            unique_id="target_flow_temperature",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -95,7 +95,7 @@ class HeatPumpFlowTempSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_flow_temperature",
+            unique_id="flow_temperature",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -118,7 +118,7 @@ class HeatPumpReturnTempSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_return_temperature",
+            unique_id="return_temperature",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -141,7 +141,7 @@ class HeatPumpTargetWaterTankTempSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_target_water_tank_temperature",
+            unique_id="target_water_tank_temperature",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -164,7 +164,7 @@ class HeatPumpWaterTankTempSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_water_tank_temperature",
+            unique_id="water_tank_temperature",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -187,7 +187,7 @@ class HeatPumpOutdoorTempSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_outdoor_temperature",
+            unique_id="outdoor_temperature",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -210,7 +210,7 @@ class HeatPumpLastCommunicationSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_last_communication_timestamp",
+            unique_id="last_communication_timestamp",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -230,7 +230,7 @@ class HeatPumpRateOfCurrentEnergyConsumptionSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_rate_of_current_energy_consumption",
+            unique_id="rate_of_current_energy_consumption",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -253,7 +253,7 @@ class HeatPumpRateOfCurrentEnergyProductionSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_rate_of_current_energy_production",
+            unique_id="rate_of_current_energy_production",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -276,7 +276,7 @@ class HeatPumpCurrentCoefficientOfPerformaceSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_current_coefficient_of_performance",
+            unique_id="current_coefficient_of_performance",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -297,7 +297,7 @@ class HeatPumpDailyEnergyReportDateSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_daily_energy_report_date",
+            unique_id="daily_energy_report_date",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -318,7 +318,7 @@ class HeatPumpDailyTotalEnergyConsumedSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_daily_total_energy_consumed",
+            unique_id="daily_total_energy_consumed",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -341,7 +341,7 @@ class HeatPumpDailyTotalEnergyProducedSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_daily_total_energy_produced",
+            unique_id="daily_total_energy_produced",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -364,7 +364,7 @@ class HeatPumpDailyCoefficientOfPerformaceSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_daily_coefficient_of_performance",
+            unique_id="daily_coefficient_of_performance",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -385,7 +385,7 @@ class HeatPumpDailyHeatingEnergyConsumedSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_daily_heating_energy_consumed",
+            unique_id="daily_heating_energy_consumed",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -408,7 +408,7 @@ class HeatPumpDailyHeatingEnergyProducedSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_daily_heating_energy_produced",
+            unique_id="daily_heating_energy_produced",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -431,7 +431,7 @@ class HeatPumpDailyHotWaterEnergyConsumedSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_daily_hot_water_energy_consumed",
+            unique_id="daily_hot_water_energy_consumed",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,
@@ -454,7 +454,7 @@ class HeatPumpDailyHotWaterEnergyProducedSensor(HeatPumpSensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_daily_hot_water_energy_produced",
+            unique_id="daily_hot_water_energy_produced",
             coordinator=coordinator,
             entity_description=SensorEntityDescription(
                 key=DOMAIN,

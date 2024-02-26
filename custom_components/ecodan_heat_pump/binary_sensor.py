@@ -42,7 +42,7 @@ class HeatPumpBinarySensorEntity(EcodanHeatPumpEntity, BinarySensorEntity):
         super().__init__(coordinator)
         self._coordinator = coordinator
         self.entity_description = entity_description
-        self._attr_unique_id = f"sensor.{unique_id}"
+        self._attr_unique_id = f"binary_sensor.heat_pump_{unique_id}"
         self.is_on_function = is_on_function
 
     @property
@@ -59,7 +59,7 @@ class HeatPumpPowerBinarySensor(HeatPumpBinarySensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_power_binary_sensor",
+            unique_id="power",
             coordinator=coordinator,
             entity_description=BinarySensorEntityDescription(
                 key=DOMAIN,
@@ -79,13 +79,12 @@ class HeatPumpForceHotWaterBinarySensor(HeatPumpBinarySensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_force_hot_water_binary_sensor",
+            unique_id="force_hot_water",
             coordinator=coordinator,
             entity_description=BinarySensorEntityDescription(
                 key=DOMAIN,
                 name="Force hot water",
                 icon="mdi:water-boiler",
-                device_class=BinarySensorDeviceClass.POWER,
             ),
             is_on_function=lambda coordinator: coordinator.data.is_forced_to_heat_water,
         )
@@ -99,13 +98,12 @@ class HeatPumpDefrostModeBinarySensor(HeatPumpBinarySensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_defrost_mode_binary_sensor",
+            unique_id="defrost_mode",
             coordinator=coordinator,
             entity_description=BinarySensorEntityDescription(
                 key=DOMAIN,
                 name="Defrost mode",
                 icon="mdi:snowflake-melt",
-                device_class=BinarySensorDeviceClass.POWER,
             ),
             is_on_function=lambda coordinator: coordinator.data.is_defrost_mode,
         )
@@ -119,13 +117,13 @@ class HeatPumpOfflineBinarySensor(HeatPumpBinarySensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_offline_binary_sensor",
+            unique_id="offline",
             coordinator=coordinator,
             entity_description=BinarySensorEntityDescription(
                 key=DOMAIN,
                 name="Offline",
                 icon="mdi:lan-disconnect",
-                device_class=BinarySensorDeviceClass.POWER,
+                device_class=BinarySensorDeviceClass.CONNECTIVITY,
             ),
             is_on_function=lambda coordinator: coordinator.data.is_offline,
         )
@@ -139,13 +137,12 @@ class HeatPumpHolidayModeBinarySensor(HeatPumpBinarySensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_holiday_mode_binary_sensor",
+            unique_id="holiday_mode",
             coordinator=coordinator,
             entity_description=BinarySensorEntityDescription(
                 key=DOMAIN,
                 name="Holiday mode",
                 icon="mdi:palm-tree",
-                device_class=BinarySensorDeviceClass.POWER,
             ),
             is_on_function=lambda coordinator: coordinator.data.is_holiday_mode,
         )
@@ -159,13 +156,12 @@ class HeatPumpHeatingProhibitedModeBinarySensor(HeatPumpBinarySensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_heating_prohibited_binary_sensor",
+            unique_id="heating_prohibited",
             coordinator=coordinator,
             entity_description=BinarySensorEntityDescription(
                 key=DOMAIN,
                 name="Heating prohibited",
                 icon="mdi:cancel",
-                device_class=BinarySensorDeviceClass.POWER,
             ),
             is_on_function=lambda coordinator: coordinator.data.is_heating_prohibited,
         )
@@ -179,13 +175,12 @@ class HeatPumpHotWaterProhibitedModeBinarySensor(HeatPumpBinarySensorEntity):
         coordinator: Coordinator,
     ) -> None:
         super().__init__(
-            unique_id="heat_pump_hot_water_prohibited_binary_sensor",
+            unique_id="hot_water_prohibited",
             coordinator=coordinator,
             entity_description=BinarySensorEntityDescription(
                 key=DOMAIN,
                 name="Hot water prohibited",
                 icon="mdi:cancel",
-                device_class=BinarySensorDeviceClass.POWER,
             ),
             is_on_function=lambda coordinator: coordinator.data.is_heating_water_prohibited,
         )
