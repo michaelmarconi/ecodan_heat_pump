@@ -18,8 +18,10 @@ async def async_setup_entry(hass, entry, async_add_devices):
     coordinator = hass.data[DOMAIN][entry.entry_id]
     async_add_devices(
         [
-            HeatPumpDefrostModeBinarySensor(coordinator),
+            HeatPumpPowerBinarySensor(coordinator),
+            HeatPumpForceHotWaterBinarySensor(coordinator),
             HeatPumpOfflineBinarySensor(coordinator),
+            HeatPumpDefrostModeBinarySensor(coordinator),
             HeatPumpHolidayModeBinarySensor(coordinator),
             HeatPumpHeatingProhibitedModeBinarySensor(coordinator),
             HeatPumpHotWaterProhibitedModeBinarySensor(coordinator),
@@ -47,6 +49,46 @@ class HeatPumpBinarySensorEntity(EcodanHeatPumpEntity, BinarySensorEntity):
     def is_on(self) -> bool:
         """Return the is_on value by calling the is_on function."""
         return self.is_on_function(self._coordinator)
+
+
+class HeatPumpPowerBinarySensor(HeatPumpBinarySensorEntity):
+    """Heat pump power binary sensor."""
+
+    def __init__(  # noqa: D107
+        self,
+        coordinator: Coordinator,
+    ) -> None:
+        super().__init__(
+            unique_id="heat_pump_power_binary_sensor",
+            coordinator=coordinator,
+            entity_description=BinarySensorEntityDescription(
+                key=DOMAIN,
+                name="Power",
+                icon="mdi:power",
+                device_class=BinarySensorDeviceClass.POWER,
+            ),
+            is_on_function=lambda coordinator: coordinator.data.has_power,
+        )
+
+
+class HeatPumpForceHotWaterBinarySensor(HeatPumpBinarySensorEntity):
+    """Heat pump force hot water binary sensor."""
+
+    def __init__(  # noqa: D107
+        self,
+        coordinator: Coordinator,
+    ) -> None:
+        super().__init__(
+            unique_id="heat_pump_force_hot_water_binary_sensor",
+            coordinator=coordinator,
+            entity_description=BinarySensorEntityDescription(
+                key=DOMAIN,
+                name="Force hot water",
+                icon="mdi:water-boiler",
+                device_class=BinarySensorDeviceClass.POWER,
+            ),
+            is_on_function=lambda coordinator: coordinator.data.is_forced_to_heat_water,
+        )
 
 
 class HeatPumpDefrostModeBinarySensor(HeatPumpBinarySensorEntity):
