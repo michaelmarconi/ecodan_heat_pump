@@ -55,6 +55,7 @@ class HeatPumpSensorEntity(EcodanHeatPumpEntity, SensorEntity):
         super().__init__(coordinator)
         self._coordinator = coordinator
         self.entity_description = entity_description
+        self.entity_id = f"sensor.heat_pump_{unique_id}"
         self._attr_unique_id = f"sensor.heat_pump_{unique_id}"
         self.value_function = value_function
 

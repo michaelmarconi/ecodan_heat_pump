@@ -42,6 +42,7 @@ class HeatPumpBinarySensorEntity(EcodanHeatPumpEntity, BinarySensorEntity):
         super().__init__(coordinator)
         self._coordinator = coordinator
         self.entity_description = entity_description
+        self.entity_id = f"binary_sensor.heat_pump_{unique_id}"
         self._attr_unique_id = f"binary_sensor.heat_pump_{unique_id}"
         self.is_on_function = is_on_function
 
