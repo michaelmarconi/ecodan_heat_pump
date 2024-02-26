@@ -1,4 +1,4 @@
-# """Switch platform for ecodan_heat_pump."""
+"""Switch platform for ecodan_heat_pump."""
 
 # from __future__ import annotations
 
