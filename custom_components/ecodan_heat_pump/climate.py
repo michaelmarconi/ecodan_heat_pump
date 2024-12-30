@@ -76,7 +76,8 @@ class HeatPumpClimateEntity(EcodanHeatPumpEntity, ClimateEntity):
     @property
     def hvac_modes(self) -> list[str]:
         """Return the list of available hvac operation modes."""
-        return [HVACMode.OFF, HVACMode.HEAT, HVACMode.AUTO]
+        return [HVACMode.OFF, HVACMode.HEAT]
+        # return [HVACMode.OFF, HVACMode.HEAT, HVACMode.AUTO] Remove 'Auto' mode for now...
 
     @property
     def hvac_mode(self) -> str:
